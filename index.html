@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Pilu - Pierluigi Berardi | Official Website</title>
+    <style>
+        /* --- IMPOSTAZIONI DI BASE --- */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #050505;
+            /* Fondo scurissimo */
+            background-image: url('jungle.jpg');
+            /* Sfondo visibile sotto, se trasparente */
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            color: #f1f1f1;
+            overflow: hidden;
+            /* Bloccato fino all'ingresso */
+        }
+
+        /* --- SCHERMATA DI AVVISO (OVERLAY) --- */
+        #warning-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            color: #ff0000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: opacity 1.5s ease, transform 1.5s ease;
+        }
+
+        #warning-overlay.fade-out {
+            opacity: 0;
+            transform: scale(1.2);
+            pointer-events: none;
+        }
+
+        #warning-overlay h1 {
+            font-size: 4em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+            text-shadow: 0 0 20px #ff0000;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        #warning-overlay p {
+            font-size: 1.2em;
+            color: #fff;
+            max-width: 600px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .enter-btn {
+            background-color: transparent;
+            color: #ff0000;
+            border: 1px solid #ff0000;
+            padding: 15px 50px;
+            font-size: 1.2em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .enter-btn:hover {
+            background-color: #ff0000;
+            color: #000;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+        }
+
+        /* --- HERO SECTION (A TUTTO SCHERMO) --- */
+        #hero {
+            position: relative;
+            width: 100vw;
+            height: 90vh;
+            /* Occupa il 90% dell'altezza dello schermo */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Le foto in background */
+        .slideshow-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .mySlides {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transform: scale(1);
+            transition: opacity 2s ease-in-out, transform 6s linear;
+        }
+
+        .mySlides.active {
+            opacity: 1;
+            transform: scale(1.1);
+            /* Zoom morbido in avanti */
+        }
+
+        /* Il trucco magico: Sfumatura nera che fonde le foto col resto del sito */
+        .hero-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(5, 5, 5, 0.8) 70%, #050505 100%);
+            z-index: 2;
+        }
+
+        /* Effetto Fumo */
+        #smoke-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        /* Testo Centrale */
+        .hero-content {
+            position: relative;
+            z-index: 4;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .main-title {
+            font-size: 6em;
+            margin: 0;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 15px;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            font-weight: 300;
+            color: #e6a822;
+            /* Accento dorato */
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        /* --- SEZIONE TOUR (STILE PROFESSIONALE) --- */
+        .tour-section {
+            position: relative;
+            z-index: 5;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 50px 20px 100px;
+            background-color: #050505;
+            /* Nasconde l'immagine jungle sotto il testo */
+        }
+
+        .section-title {
+            font-size: 2em;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title span {
+            color: #e6a822;
+        }
+
+        .tour-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .tour-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tour-row:hover {
+            background: rgba(30, 30, 30, 0.9);
+            border-left: 3px solid #e6a822;
+            transform: translateX(10px);
+        }
+
+        .tour-date {
+            flex: 1;
+            font-size: 1.2em;
+            color: #e6a822;
+            font-weight: bold;
+        }
+
+        .tour-location {
+            flex: 2;
+        }
+
+        .tour-location h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.5em;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .tour-location p {
+            margin: 0;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .tour-action {
+            flex: 1;
+            text-align: right;
+        }
+
+        .tickets-btn {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px 20px;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tour-row:hover .tickets-btn {
+            border-color: #e6a822;
+            color: #e6a822;
+        }
+
+        /* Adattamento per cellulari */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 3em;
+                letter-spacing: 5px;
+            }
+
+            .tour-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .tour-action {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="warning-overlay">
+        <h1>⚠️ Explicit Vibes ⚠️</h1>
+        <p>Il contenuto di questo sito è destinato esclusivamente a un pubblico adulto.<br><strong>Contiene frequenze e
+                vibrazioni non adatte ai deboli di cuore.</strong></p>
+        <button class="enter-btn" onclick="enterSite()">Enter the Jungle</button>
+    </div>
+
+    <audio id="bg-audio" loop>
+        <source src="audio.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="hero">
+        <div class="slideshow-bg">
+            <img class="mySlides" src="foto1.jpg" alt="DJ Pilu">
+            <img class="mySlides" src="foto2.jpg" alt="DJ Pilu">
+            <img class="mySlides" src="foto3.jpg" alt="DJ Pilu">
+            <img class="mySlides" src="foto4.jpg" alt="DJ Pilu">
+            <img class="mySlides" src="foto5.jpg" alt="DJ Pilu">
+            <img class="mySlides" src="foto6.jpg" alt="DJ Pilu">
+            <img class="mySlides" src="foto7.jpg" alt="DJ Pilu">
+            <img class="mySlides" src="foto8.jpg" alt="DJ Pilu">
+            <img class="mySlides" src="foto9.jpg" alt="DJ Pilu">
+        </div>
+
+        <div class="hero-gradient"></div>
+        <canvas id="smoke-canvas"></canvas>
+
+        <div class="hero-content">
+            <h1 class="main-title">DJ Pilu</h1>
+            <div class="subtitle">Pierluigi Berardi • San Marino</div>
+        </div>
+    </div>
+
+    <div class="tour-section">
+        <h2 class="section-title">Upcoming <span>Dates</span></h2>
+
+        <div class="tour-list">
+
+            <div class="tour-row">
+                <div class="tour-date">15 LUG 2026</div>
+                <div class="tour-location">
+                    <h3>Tribal Awakening</h3>
+                    <p>Cava dei Balestrieri, San Marino (SM) • Afro House Set</p>
+                </div>
+                <div class="tour-action">
+                    <button class="tickets-btn">Info & RSVP</button>
+                </div>
+            </div>
+
+            <div class="tour-row">
+                <div class="tour-date">10 AGO 2026</div>
+                <div class="tour-location">
+                    <h3>Jungle Safari Night</h3>
+                    <p>Baia Imperiale, Gabicce Mare (IT) • Main Room</p>
+                </div>
+                <div class="tour-action">
+                    <button class="tickets-btn">Tickets</button>
+                </div>
+            </div>
+
+            <div class="tour-row">
+                <div class="tour-date">05 SET 2026</div>
+                <div class="tour-location">
+                    <h3>Savannah Sunset</h3>
+                    <p>Altromondo Studios, Rimini (IT) • Closing Party</p>
+                </div>
+                <div class="tour-action">
+                    <button class="tickets-btn">Sold Out</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- 1. SBLOCCO DEL SITO E AUDIO ---
+        function enterSite() {
+            let overlay = document.getElementById('warning-overlay');
+            overlay.classList.add('fade-out');
+            document.body.style.overflow = 'auto'; // Sblocca lo scroll
+
+            let audio = document.getElementById('bg-audio');
+            audio.volume = 0.8;
+            audio.play();
+
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                startSlideshow();
+            }, 1500);
+        }
+
+        // --- 2. SLIDESHOW FULL-BLEED ---
+        let slides = document.querySelectorAll(".mySlides");
+        let currentSlide = 0;
+
+        function startSlideshow() {
+            if (slides.length > 0) {
+                slides[0].classList.add("active");
+                setInterval(nextSlide, 5000); // 5 secondi per ogni foto per godersi lo zoom
+            }
+        }
+
+        function nextSlide() {
+            slides[currentSlide].classList.remove("active");
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add("active");
+        }
+
+        // --- 3. MOTORE EFFETTO FUMO ---
+        const canvas = document.getElementById('smoke-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            // Il fumo copre solo la hero section ora, molto più performante
+            canvas.width = document.getElementById('hero').offsetWidth;
+            canvas.height = document.getElementById('hero').offsetHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        for (let i = 0; i < 35; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 150 + 50,
+                vx: Math.random() * 0.4 - 0.2,
+                vy: Math.random() * -0.8 - 0.1,
+                opacity: Math.random() * 0.04 + 0.01
+            });
+        }
+
+        function drawSmoke() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.y < -p.r) p.y = canvas.height + p.r;
+                if (p.x < -p.r) p.x = canvas.width + p.r;
+                if (p.x > canvas.width + p.r) p.x = -p.r;
+
+                ctx.beginPath();
+                let grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+                grad.addColorStop(0, `rgba(220, 220, 220, ${p.opacity})`);
+                grad.addColorStop(1, 'rgba(220, 220, 220, 0)');
+                ctx.fillStyle = grad;
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            requestAnimationFrame(drawSmoke);
+        }
+        drawSmoke();
+    </script>
+
+</body>
+
+</html>

@@ -7,288 +7,386 @@
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎧</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* --- VARIABILI E BASE --- */
         :root {
             --gold: #e6a822;
-            --dark: #070707;
+            --gold-glow: rgba(230, 168, 34, 0.4);
+            --dark: #050505;
             --light: #f1f1f1;
-            --glass: rgba(20, 20, 20, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(15, 15, 15, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.08);
             --accent: #ff3366;
+            --sc-orange: #ff5500;
         }
 
         body, html {
             margin: 0; padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--dark);
             color: var(--light);
             overflow-x: hidden;
             scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
         }
 
         * { box-sizing: border-box; }
 
-        /* --- 2. SPLASH SCREEN (TAP TO ENTER) --- */
+        /* --- SPLASH SCREEN --- */
         #enter-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: var(--dark); z-index: 99999;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             transition: opacity 0.8s ease, visibility 0.8s ease;
         }
+        #enter-screen::before {
+            content: '🎧'; font-size: 15vw; display: block; margin-bottom: 30px;
+            animation: float-emoji 3s ease-in-out infinite;
+        }
+        @keyframes float-emoji {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
         .enter-btn {
-            padding: 15px 40px; font-size: 5vw; font-weight: 800; letter-spacing: 2px;
+            padding: 16px 50px; font-size: 4.5vw; font-weight: 800; letter-spacing: 3px;
             color: var(--dark); background: var(--gold); border: none; border-radius: 50px;
             text-transform: uppercase; cursor: pointer; animation: pulse-btn 2s infinite;
-            box-shadow: 0 0 20px rgba(230, 168, 34, 0.5);
+            box-shadow: 0 0 25px var(--gold-glow);
+            font-family: 'Outfit', sans-serif;
         }
         @keyframes pulse-btn {
-            0% { transform: scale(1); box-shadow: 0 0 20px rgba(230, 168, 34, 0.5); }
-            50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(230, 168, 34, 0.8); }
-            100% { transform: scale(1); box-shadow: 0 0 20px rgba(230, 168, 34, 0.5); }
+            0% { transform: scale(1); box-shadow: 0 0 25px var(--gold-glow); }
+            50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(230, 168, 34, 0.7); }
+            100% { transform: scale(1); box-shadow: 0 0 25px var(--gold-glow); }
         }
 
-        /* --- BARRA SUPERIORE --- */
+        /* --- TOP BAR --- */
         .top-header-bar {
             position: fixed; top: 15px; left: 15px; right: 15px; z-index: 1000;
             display: flex; justify-content: space-between; align-items: flex-start;
             pointer-events: none;
         }
 
-        .social-icons-row { display: flex; flex-direction: row; gap: 8px; pointer-events: auto; }
+        .social-icons-row { display: flex; flex-direction: row; gap: 7px; pointer-events: auto; }
         .icon-btn {
-            width: 38px; height: 38px; border-radius: 50%;
+            width: 36px; height: 36px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 18px; text-decoration: none; color: white;
-            backdrop-filter: blur(10px); background: var(--glass);
+            font-size: 17px; text-decoration: none; color: white;
+            backdrop-filter: blur(12px); background: var(--glass);
             border: 1px solid var(--glass-border); box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         .icon-btn:active { transform: scale(0.85); }
-        .icon-wa i { color: #25D366; } 
-        .icon-ig i { background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .icon-lt i { color: #43E660; } 
+        .icon-wa i { color: #25D366; }
+        .icon-ig i { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .icon-lt i { color: #43E660; }
         .icon-sp i { color: #1DB954; }
+        .icon-sc i { color: var(--sc-orange); }
 
         .stats-column { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: auto; }
         .stat-badge {
             display: flex; align-items: center; justify-content: center; gap: 5px;
-            backdrop-filter: blur(10px); background: var(--glass);
+            backdrop-filter: blur(12px); background: var(--glass);
             border: 1px solid var(--glass-border); color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 20px;
             font-size: 3vw; font-weight: 600; cursor: pointer; user-select: none; transition: all 0.3s ease;
         }
-        #like-btn.liked { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px rgba(255,51,102,0.4); }
+        #like-btn.liked { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 12px rgba(255,51,102,0.4); }
 
-        /* --- 3. CUSTOM AUDIO PLAYER --- */
+        /* --- AUDIO PLAYER --- */
         .audio-player-widget {
             position: fixed; bottom: 80px; left: 15px; z-index: 900;
             display: flex; align-items: center; gap: 10px; padding: 8px 15px;
-            background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border);
-            border-radius: 30px; pointer-events: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--glass-border);
+            border-radius: 30px; pointer-events: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
         .play-btn { background: none; border: none; color: var(--gold); font-size: 20px; cursor: pointer; outline: none; }
         .visualizer { display: flex; align-items: flex-end; gap: 3px; height: 15px; margin-left: 5px; }
         .bar { width: 3px; background: var(--gold); border-radius: 3px; height: 3px; transition: height 0.1s; }
         .visualizer.active .bar:nth-child(1) { animation: bounceBar 1.2s infinite ease-in-out; }
-        .visualizer.active .bar:nth-child(2) { animation: bounceBar 0.9s infinite ease-in-out; animation-delay: 0.1s; }
-        .visualizer.active .bar:nth-child(3) { animation: bounceBar 1.5s infinite ease-in-out; animation-delay: 0.2s; }
-        .visualizer.active .bar:nth-child(4) { animation: bounceBar 1.1s infinite ease-in-out; animation-delay: 0.3s; }
+        .visualizer.active .bar:nth-child(2) { animation: bounceBar 0.9s infinite ease-in-out 0.1s; }
+        .visualizer.active .bar:nth-child(3) { animation: bounceBar 1.5s infinite ease-in-out 0.2s; }
+        .visualizer.active .bar:nth-child(4) { animation: bounceBar 1.1s infinite ease-in-out 0.3s; }
+        .visualizer.active .bar:nth-child(5) { animation: bounceBar 1.0s infinite ease-in-out 0.15s; }
         @keyframes bounceBar { 0%, 100% { height: 3px; } 50% { height: 15px; } }
 
-        /* --- EFFETTO FUMO --- */
+        /* --- SMOKE CANVAS --- */
         #smoke-canvas {
             position: fixed; bottom: 0; left: 0; width: 100vw; height: 100vh;
-            z-index: 0; pointer-events: none; opacity: 0.6; mix-blend-mode: screen;
+            z-index: 0; pointer-events: none; opacity: 0.5; mix-blend-mode: screen;
         }
 
         /* --- HERO SECTION --- */
         #hero {
             position: relative; width: 100vw; height: 100vh;
             display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1;
+            overflow: hidden;
         }
-        .slideshow-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: #000; }
-        .mySlides {
+        .video-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; opacity: 0; transform: scale(1);
-            transition: opacity 2s ease-in-out, transform 7s linear;
+            object-fit: cover; z-index: -2; opacity: 0.55;
+            filter: brightness(0.7) contrast(1.1);
         }
-        .mySlides.active { opacity: 0.6; transform: scale(1.1); }
         .hero-gradient {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(5,5,5,0.7) 70%, var(--dark) 100%); z-index: -1;
+            background: linear-gradient(to bottom, rgba(5,5,5,0.2) 0%, rgba(5,5,5,0.5) 50%, var(--dark) 100%);
+            z-index: -1;
         }
         .hero-content { text-align: center; padding: 0 20px; margin-top: 5vh; }
         .status-badge {
-            display: inline-flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.5);
-            padding: 5px 15px; border-radius: 20px; border: 1px solid var(--gold);
-            font-size: 3vw; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); margin-bottom: 15px;
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            padding: 6px 18px; border-radius: 20px; border: 1px solid var(--gold);
+            font-size: 3vw; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); margin-bottom: 15px;
+            font-weight: 600;
         }
-        .live-dot { width: 8px; height: 8px; background: red; border-radius: 50%; animation: blink 1s infinite; }
-        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
-        
-        .main-title { font-size: 22vw; margin: 0; color: #fff; text-transform: uppercase; line-height: 0.8; letter-spacing: 1.5vw; text-shadow: 0 5px 20px #000; }
-        .subtitle { font-size: 4.5vw; color: var(--gold); text-transform: uppercase; margin-top: 15px; font-weight: 700; text-shadow: 0 2px 10px #000; }
+        .live-dot { width: 8px; height: 8px; background: #ff3333; border-radius: 50%; animation: blink 1s infinite; box-shadow: 0 0 6px #ff3333; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .main-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 28vw; margin: 0; color: #fff; text-transform: uppercase;
+            line-height: 0.85; letter-spacing: 2vw;
+            text-shadow: 0 5px 30px rgba(0,0,0,0.8), 0 0 80px var(--gold-glow);
+        }
+        .subtitle {
+            font-size: 4vw; color: var(--gold); text-transform: uppercase;
+            margin-top: 12px; font-weight: 700; letter-spacing: 3px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
 
         .scroll-indicator {
             position: absolute; bottom: 4vh; left: 50%; transform: translateX(-50%);
-            display: flex; flex-direction: column; align-items: center; z-index: 10; cursor: pointer; text-decoration: none;
+            display: flex; flex-direction: column; align-items: center; z-index: 10;
+            cursor: pointer; text-decoration: none;
         }
-        .scroll-text { font-size: 3.5vw; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 0.8vw; margin-bottom: 5px; font-weight: 600; text-shadow: 0 2px 5px #000; }
+        .scroll-text {
+            font-size: 3vw; color: rgba(255,255,255,0.7); text-transform: uppercase;
+            letter-spacing: 3px; margin-bottom: 5px; font-weight: 600;
+        }
         .arrows { display: flex; flex-direction: column; align-items: center; }
-        .arrow { width: 4vw; height: 4vw; border-right: 3px solid var(--gold); border-bottom: 3px solid var(--gold); transform: rotate(45deg); margin-top: -1.5vw; animation: arrow-bounce 2s infinite; }
+        .arrow {
+            width: 3.5vw; height: 3.5vw;
+            border-right: 2px solid var(--gold); border-bottom: 2px solid var(--gold);
+            transform: rotate(45deg); margin-top: -1.5vw; animation: arrow-bounce 2s infinite;
+        }
         .arrow:nth-child(2) { animation-delay: -0.2s; opacity: 0.5; }
+        @keyframes arrow-bounce {
+            0% { opacity: 0; transform: rotate(45deg) translate(-5px, -5px); }
+            50% { opacity: 1; }
+            100% { opacity: 0; transform: rotate(45deg) translate(5px, 5px); }
+        }
 
-        @keyframes arrow-bounce { 0% { opacity: 0; transform: rotate(45deg) translate(-5px, -5px); } 50% { opacity: 1; } 100% { opacity: 0; transform: rotate(45deg) translate(5px, 5px); } }
-
-        /* --- 4. SCROLL REVEAL (Animazioni allo scroll) --- */
-        .reveal { opacity: 0; transform: translateY(50px); transition: all 0.8s ease-out; }
+        /* --- SCROLL REVEAL --- */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
-        /* --- SEZIONI --- */
-        .section { position: relative; z-index: 2; padding: 50px 0; overflow: hidden;}
+        /* --- SECTIONS --- */
+        .section { position: relative; z-index: 2; padding: 60px 0; overflow: hidden; }
         .section-title {
-            font-size: 9vw; text-transform: uppercase; color: var(--light);
-            text-align: center; margin: 0 auto 40px auto; border-bottom: 3px solid var(--gold); display: table; padding-bottom: 10px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 10vw; text-transform: uppercase; color: var(--light);
+            text-align: center; margin: 0 auto 35px auto;
+            position: relative; display: table; letter-spacing: 3px;
+        }
+        .section-title::after {
+            content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
+            width: 50px; height: 3px; background: var(--gold); border-radius: 2px;
         }
 
-        /* --- LOCANDINE & COUNTDOWN --- */
+        /* --- EVENTS / LOCANDINE --- */
         .events-wrapper { padding: 0 20px; }
+        .events-divider {
+            text-align: center; padding: 25px 0 15px; font-size: 3.5vw; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 3px; color: #666;
+        }
+        .events-divider span {
+            background: var(--dark); padding: 0 15px; position: relative;
+        }
+        .events-divider::before {
+            content: ''; display: block; width: 60%; height: 1px;
+            background: rgba(255,255,255,0.1); margin: 0 auto;
+            position: relative; top: 14px;
+        }
         .event-card {
             background: var(--glass); backdrop-filter: blur(10px);
-            border-radius: 15px; overflow: hidden; margin-bottom: 40px;
-            border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border-radius: 16px; overflow: hidden; margin-bottom: 25px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+            transition: transform 0.3s ease;
         }
+        .event-card.concluded { opacity: 0.6; }
         .flyer-img { width: 100%; display: block; }
-        .timer-container { padding: 20px; text-align: center; background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%); }
-        .timer-title { color: #aaa; font-size: 3.5vw; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;}
-        .countdown { display: flex; justify-content: center; gap: 10px; }
-        .time-box { display: flex; flex-direction: column; align-items: center; }
-        .time-val { font-size: 7vw; font-weight: 800; color: var(--gold); }
-        .time-lbl { font-size: 3vw; color: #888; text-transform: uppercase; }
-        .ended-text { color: var(--accent); font-size: 5.5vw; font-weight: bold; letter-spacing: 2px; }
-
-        /* --- 5. MUSIC & VIDEO SECTION --- */
-        .media-wrapper { padding: 0 20px; display: flex; flex-direction: column; gap: 20px; }
-        .iframe-container {
-            width: 100%; border-radius: 15px; overflow: hidden; border: 1px solid var(--glass-border);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); background: #111;
+        .timer-container {
+            padding: 18px; text-align: center;
+            background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
         }
-        .iframe-container iframe { width: 100%; border: none; display: block; }
+        .timer-title { color: #999; font-size: 3vw; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; }
+        .countdown { display: flex; justify-content: center; gap: 12px; }
+        .time-box { display: flex; flex-direction: column; align-items: center; }
+        .time-val {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 8vw; font-weight: 800; color: var(--gold);
+            line-height: 1;
+        }
+        .time-lbl { font-size: 2.5vw; color: #777; text-transform: uppercase; letter-spacing: 1px; }
+        .ended-text {
+            color: #888; font-size: 4vw; font-weight: 700; letter-spacing: 2px;
+            text-transform: uppercase;
+        }
 
-        /* --- GALLERIA & LIGHTBOX --- */
-        .gallery-wrapper { padding: 0 20px; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
-        .gallery-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; filter: brightness(0.8) grayscale(0.2); transition: all 0.2s; cursor: pointer; }
-        .gallery-img:active { filter: brightness(1.2) grayscale(0); }
+        /* --- GALLERY --- */
+        .gallery-wrapper { padding: 0 10px; }
+        .gallery-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px;
+        }
+        .gallery-item {
+            position: relative; width: 100%; aspect-ratio: 1 / 1;
+            overflow: hidden; cursor: pointer;
+        }
+        .gallery-item img, .gallery-item video {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: brightness(0.85); transition: all 0.3s ease;
+        }
+        .gallery-item:active img, .gallery-item:active video {
+            filter: brightness(1.1);
+            transform: scale(1.05);
+        }
+        .gallery-item.video-item::after {
+            content: '▶'; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8vw; color: rgba(255,255,255,0.85);
+            text-shadow: 0 2px 15px rgba(0,0,0,0.8);
+            pointer-events: none; z-index: 2;
+        }
+        .gallery-item.wide { grid-column: span 2; aspect-ratio: 2 / 1; }
 
+        /* --- LIGHTBOX --- */
         #lightbox {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999;
-            display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.97); z-index: 9999;
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s ease;
+            flex-direction: column;
         }
         #lightbox.show { display: flex; opacity: 1; }
-        #lightbox-img { max-width: 95%; max-height: 90%; border-radius: 5px; box-shadow: 0 0 30px rgba(0,0,0,0.8); }
-
-        /* --- 7. MERCH/SHOP SECTION --- */
-        .shop-grid { display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 20px 20px; scroll-snap-type: x mandatory; scrollbar-width: none; }
-        .shop-grid::-webkit-scrollbar { display: none; }
-        .shop-item {
-            min-width: 45vw; background: var(--glass); border-radius: 10px; padding: 10px; text-align: center;
-            border: 1px solid var(--glass-border); scroll-snap-align: start;
+        #lightbox-img, #lightbox-video {
+            max-width: 95%; max-height: 85%;
+            border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            display: none;
         }
-        .shop-item i { font-size: 10vw; color: var(--light); margin: 20px 0; opacity: 0.8;}
-        .shop-title { font-size: 3.5vw; font-weight: bold; margin-bottom: 5px; }
-        .shop-price { color: var(--gold); font-size: 4vw; font-weight: 800; }
-        .shop-btn { margin-top: 10px; padding: 8px 15px; background: transparent; border: 1px solid var(--gold); color: var(--gold); border-radius: 20px; font-size: 3vw; width: 100%; cursor: pointer;}
-
-        /* --- RECENSIONI --- */
-        .reviews-container { display: flex; overflow-x: auto; gap: 15px; padding: 0 20px 20px 20px; scroll-snap-type: x mandatory; scrollbar-width: none; }
-        .reviews-container::-webkit-scrollbar { display: none; }
-        .review-card {
-            min-width: 80vw; background: var(--glass); backdrop-filter: blur(10px);
-            padding: 25px; border-radius: 15px; border-left: 4px solid var(--gold);
-            scroll-snap-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        #lightbox-close {
+            position: absolute; top: 20px; right: 20px;
+            color: white; font-size: 28px; cursor: pointer; z-index: 10;
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); border-radius: 50%; border: none;
+            backdrop-filter: blur(10px);
         }
-        .stars { color: var(--gold); font-size: 4.5vw; margin-bottom: 10px; }
-        .review-text { font-style: italic; color: #ddd; font-size: 4vw; margin: 0 0 15px 0; line-height: 1.4; }
-        .reviewer { font-weight: bold; color: var(--light); font-size: 3.5vw; text-transform: uppercase; }
 
-        /* --- 8. NEWSLETTER FORM --- */
-        .newsletter-box {
-            background: rgba(230, 168, 34, 0.1); border: 1px solid var(--gold);
-            border-radius: 15px; padding: 30px 20px; text-align: center; margin: 0 20px;
-        }
-        .newsletter-box h3 { margin-top: 0; font-size: 5vw; text-transform: uppercase; color: var(--gold); }
-        .newsletter-box p { font-size: 3.5vw; color: #ccc; margin-bottom: 20px; }
-        .form-group { display: flex; gap: 10px; justify-content: center; }
-        .form-group input { padding: 12px; border-radius: 25px; border: none; outline: none; flex: 1; font-size: 3.5vw; }
-        .form-group button { padding: 12px 20px; border-radius: 25px; border: none; background: var(--gold); color: var(--dark); font-weight: bold; text-transform: uppercase; cursor: pointer; }
-
-        /* --- SOCIAL LINKS PREMIUM --- */
+        /* --- SOCIAL LINKS --- */
         .links-wrapper { padding: 0 20px; }
         .premium-link {
-            display: flex; align-items: center; justify-content: center; width: 100%; padding: 18px; margin-bottom: 15px;
-            border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 4.5vw; text-transform: uppercase; color: #fff;
-            background: rgba(25, 25, 25, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center;
+            width: 100%; padding: 16px; margin-bottom: 12px;
+            border-radius: 50px; text-decoration: none; font-weight: 700;
+            font-size: 4vw; text-transform: uppercase; color: #fff; letter-spacing: 1px;
+            background: var(--glass); backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border); transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
         }
-        .premium-link:active { transform: scale(0.96); }
-        .premium-link i { font-size: 6vw; margin-right: 12px; }
-        .btn-wa i { color: #25D366; } .btn-ig i { color: #E1306C; } .btn-lt i { color: #43E660; } .btn-sp i { color: #1DB954; }
+        .premium-link:active { transform: scale(0.96); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .premium-link i { font-size: 5.5vw; margin-right: 12px; }
+        .btn-wa i { color: #25D366; }
+        .btn-ig i { color: #E1306C; }
+        .btn-lt i { color: #43E660; }
+        .btn-sc i { color: var(--sc-orange); }
 
-        /* --- 9. FLOATING BOOK BUTTON --- */
+        /* --- FLOATING BUTTON --- */
         .floating-book-btn {
             position: fixed; bottom: 20px; right: 20px; z-index: 1000;
             background: var(--gold); color: var(--dark);
-            width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 24px; box-shadow: 0 5px 20px rgba(230, 168, 34, 0.6); text-decoration: none;
-            animation: bounceIn 1s ease-out;
+            width: 56px; height: 56px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; box-shadow: 0 5px 25px var(--gold-glow);
+            text-decoration: none;
+            animation: float-btn 3s ease-in-out infinite;
+        }
+        @keyframes float-btn {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
 
-        footer { text-align: center; padding: 40px 20px; color: #555; font-size: 3.5vw; padding-bottom: 100px; }
+        /* --- FOOTER --- */
+        footer {
+            text-align: center; padding: 50px 20px 110px;
+            color: #444; font-size: 3.2vw;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        footer .footer-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 8vw; color: rgba(255,255,255,0.08);
+            letter-spacing: 5px; margin-bottom: 10px;
+        }
+
+        /* --- SMOOTH TRANSITIONS --- */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+        }
     </style>
 </head>
 <body>
 
+    <!-- SPLASH -->
     <div id="enter-screen">
         <button class="enter-btn" id="start-experience">Tap to Enter</button>
     </div>
 
+    <!-- TOP BAR -->
     <div class="top-header-bar">
         <div class="social-icons-row">
-            <a href="https://wa.me/393337597075" class="icon-btn icon-wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
-            <a href="https://www.instagram.com/pierluigi_berardi/" class="icon-btn icon-ig" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="https://linktr.ee/PierluigiBerardi" class="icon-btn icon-lt" target="_blank"><i class="fas fa-link"></i></a>
-            <a href="https://open.spotify.com/intl-it/artist/0YPFfQEkTt3drlZQ3y1Dyo?si=Tsd-EqtCS8Kqvfydb9uwqw&utm_medium=share&utm_source=linktree&nd=1&dlsi=bc0e8897273e4373" class="icon-btn icon-sp" target="_blank"><i class="fab fa-spotify"></i></a>
+            <a href="https://wa.me/393337597075" class="icon-btn icon-wa" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://www.instagram.com/pierluigi_berardi/" class="icon-btn icon-ig" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+            <a href="https://soundcloud.com/pierluigi-berardi?ref=clipboard&p=i&c=1&si=7B5A958749FC44CEA4E5FC19BFAD048F&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" class="icon-btn icon-sc" target="_blank" rel="noopener"><i class="fab fa-soundcloud"></i></a>
+            <a href="https://open.spotify.com/intl-it/artist/0YPFfQEkTt3drlZQ3y1Dyo?si=Tsd-EqtCS8Kqvfydb9uwqw" class="icon-btn icon-sp" target="_blank" rel="noopener"><i class="fab fa-spotify"></i></a>
+            <a href="https://linktr.ee/PierluigiBerardi" class="icon-btn icon-lt" target="_blank" rel="noopener"><i class="fas fa-link"></i></a>
         </div>
         <div class="stats-column">
-            <div class="stat-badge"><i class="fas fa-eye" style="color:#aaa;"></i> <span id="view-counter">1,245</span></div>
+            <div class="stat-badge"><i class="fas fa-eye" style="color:#aaa;"></i> <span id="view-counter">—</span></div>
             <div class="stat-badge" id="like-btn" onclick="toggleLike()"><i class="fas fa-heart" id="heart-icon"></i> <span id="like-text">Mi Piace</span></div>
         </div>
     </div>
 
+    <!-- AUDIO -->
     <audio id="bg-audio" loop preload="auto">
         <source src="audio.mp3" type="audio/mpeg">
     </audio>
     <div class="audio-player-widget">
         <button class="play-btn" id="play-pause-btn"><i class="fas fa-pause"></i></button>
         <div class="visualizer" id="audio-visualizer">
-            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
         </div>
     </div>
 
+    <!-- SMOKE -->
     <canvas id="smoke-canvas"></canvas>
 
-    <div id="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src=""></div>
+    <!-- LIGHTBOX -->
+    <div id="lightbox">
+        <button id="lightbox-close" onclick="closeLightbox()"><i class="fas fa-times"></i></button>
+        <img id="lightbox-img" src="">
+        <video id="lightbox-video" controls playsinline></video>
+    </div>
 
+    <!-- HERO -->
     <header id="hero">
-        <div class="slideshow-bg">
-            <img class="mySlides" src="foto1.jpg" alt="DJ Pilu">
-            <img class="mySlides" src="foto7.jpg" alt="DJ Pilu">
-            <img class="mySlides" src="foto3.jpg" alt="DJ Pilu">
-        </div>
+        <video class="video-bg" id="hero-video" muted loop playsinline>
+            <source src="video1.mp4" type="video/mp4">
+        </video>
         <div class="hero-gradient"></div>
-        
+
         <div class="hero-content">
             <div class="status-badge"><div class="live-dot"></div> On Tour</div>
             <h1 class="main-title">Pilu</h1>
@@ -301,140 +399,89 @@
         </a>
     </header>
 
+    <!-- EVENTS -->
     <section class="section reveal" id="tour">
         <h2 class="section-title">Next Shows</h2>
-        <div class="events-wrapper">
-            <div class="event-card">
-                <img src="Locandina.jpg" class="flyer-img" alt="Underground Boiler Room">
-                <div class="timer-container">
-                    <div class="timer-title">Time to Boiler Room</div>
-                    <div class="countdown" data-date="2026-02-20"></div>
-                </div>
-            </div>
-
-            <div class="event-card">
-                <img src="Locandina1.jpg" class="flyer-img" alt="Vegas City San Ciascian">
-                <div class="timer-container">
-                    <div class="timer-title">Time to Vegas City</div>
-                    <div class="countdown" data-date="2026-02-21"></div>
-                </div>
-            </div>
+        <div class="events-wrapper" id="events-container">
+            <!-- Events will be populated by JS in chronological order -->
         </div>
     </section>
 
-    <section class="section reveal" id="media">
-        <h2 class="section-title">Latest Drops</h2>
-        <div class="media-wrapper">
-            <div class="iframe-container" style="height: 152px;">
-                <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DXaXB8fQg7xif?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-            </div>
-            <div class="iframe-container" style="aspect-ratio: 16/9;">
-                <iframe src="https://www.youtube.com/embed/jfKfPfyJRdk" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-        </div>
-    </section>
-
+    <!-- GALLERY -->
     <section class="section reveal" id="gallery">
         <h2 class="section-title">Vibes Gallery</h2>
         <div class="gallery-wrapper">
-            <div class="gallery-grid">
-                <img src="foto1.jpg" class="gallery-img" onclick="openLightbox(this.src)">
-                <img src="foto2.jpg" class="gallery-img" onclick="openLightbox(this.src)">
-                <img src="foto3.jpg" class="gallery-img" onclick="openLightbox(this.src)">
-                <img src="foto4.jpg" class="gallery-img" onclick="openLightbox(this.src)">
-                <img src="foto5.jpg" class="gallery-img" onclick="openLightbox(this.src)">
-                <img src="foto6.jpg" class="gallery-img" onclick="openLightbox(this.src)">
+            <div class="gallery-grid" id="gallery-grid">
+                <!-- Populated by JS -->
             </div>
         </div>
     </section>
 
-    <section class="section reveal" id="shop">
-        <h2 class="section-title">Official Merch</h2>
-        <div class="shop-grid">
-            <div class="shop-item">
-                <i class="fas fa-tshirt"></i>
-                <div class="shop-title">Pilu Core Tee</div>
-                <div class="shop-price">€ 25.00</div>
-                <button class="shop-btn">Pre-Order</button>
-            </div>
-            <div class="shop-item">
-                <i class="fas fa-hat-cowboy"></i> <div class="shop-title">Afro Cap</div>
-                <div class="shop-price">€ 18.00</div>
-                <button class="shop-btn">Pre-Order</button>
-            </div>
-            <div class="shop-item">
-                <i class="fas fa-compact-disc"></i>
-                <div class="shop-title">Vinyl Exclusive</div>
-                <div class="shop-price">€ 35.00</div>
-                <button class="shop-btn">Sold Out</button>
-            </div>
-        </div>
-    </section>
-
-    <section class="section reveal" id="reviews">
-        <h2 class="section-title">Dicono di Pilu</h2>
-        <div class="reviews-container">
-            <div class="review-card">
-                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                <p class="review-text">"Set afro house strepitoso! Ha tenuto la pista piena fino all'alba."</p>
-                <span class="reviewer">— Marco T. (Altromondo Studios)</span>
-            </div>
-            <div class="review-card">
-                <div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
-                <p class="review-text">"Vibes da giungla pura. Transizioni perfette e remix personali incredibili."</p>
-                <span class="reviewer">— Sara L. (Baia Imperiale)</span>
-            </div>
-        </div>
-    </section>
-
+    <!-- CONNECT -->
     <section class="section reveal" id="links">
-        <div class="newsletter-box">
-            <h3>Join the VIP List</h3>
-            <p>Ottieni accesso a tracce segrete e sconti merch prima di tutti.</p>
-            <div class="form-group">
-                <input type="email" placeholder="La tua email...">
-                <button>Iscriviti</button>
-            </div>
-        </div>
-        <br><br>
         <h2 class="section-title">Connect</h2>
         <div class="links-wrapper">
-            <a href="https://wa.me/393337597075?text=Ciao%20DJ%20Pilu,%20contatto%20per%20booking%20evento." class="premium-link btn-wa" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp Booking</a>
-            <a href="https://www.instagram.com/pierluigi_berardi/" class="premium-link btn-ig" target="_blank"><i class="fab fa-instagram"></i> Instagram Profile</a>
-            <a href="https://linktr.ee/PierluigiBerardi" class="premium-link btn-lt" target="_blank"><i class="fas fa-link"></i> Linktree All Links</a>
+            <a href="https://wa.me/393337597075?text=Ciao%20DJ%20Pilu,%20contatto%20per%20booking%20evento." class="premium-link btn-wa" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> WhatsApp Booking</a>
+            <a href="https://www.instagram.com/pierluigi_berardi/" class="premium-link btn-ig" target="_blank" rel="noopener"><i class="fab fa-instagram"></i> Instagram Profile</a>
+            <a href="https://soundcloud.com/pierluigi-berardi?ref=clipboard&p=i&c=1&si=7B5A958749FC44CEA4E5FC19BFAD048F&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" class="premium-link btn-sc" target="_blank" rel="noopener"><i class="fab fa-soundcloud"></i> SoundCloud</a>
+            <a href="https://linktr.ee/PierluigiBerardi" class="premium-link btn-lt" target="_blank" rel="noopener"><i class="fas fa-link"></i> Linktree All Links</a>
         </div>
     </section>
 
     <footer>
-        © 2026 Pierluigi Berardi "DJ Pilu". <br> Afro House vibes from San Marino.
+        <div class="footer-logo">PILU</div>
+        © 2026 Pierluigi Berardi "DJ Pilu"<br>
+        Afro House vibes from San Marino 🇸🇲
     </footer>
 
-    <a href="https://wa.me/393337597075" class="floating-book-btn" target="_blank">
+    <a href="https://wa.me/393337597075" class="floating-book-btn" target="_blank" rel="noopener">
         <i class="far fa-calendar-check"></i>
     </a>
 
     <script>
-        /* --- SBLOCCO AUDIO iOS E START --- */
+        /* ===== CONFIGURATION ===== */
+
+        // Events data — add/remove events here. Order doesn't matter, JS sorts them.
+        const eventsData = [
+            { img: "Locandina.jpg",  title: "Time to Boiler Room",      date: "2026-02-20T20:00:00" },
+            { img: "Locandina1.jpg", title: "Time to Vegas City",       date: "2026-02-21T20:00:00" },
+        ];
+
+        // Gallery items — videos first for prominence, then photos
+        const galleryItems = [
+            { type: "video", src: "video2.mp4" },
+            { type: "video", src: "video3.mp4" },
+        ];
+        // Add foto1 through foto26
+        for (let i = 1; i <= 26; i++) {
+            galleryItems.push({ type: "image", src: `foto${i}.jpg` });
+        }
+
+        /* ===== SPLASH & AUDIO ===== */
         const enterScreen = document.getElementById('enter-screen');
         const startBtn = document.getElementById('start-experience');
         const audio = document.getElementById('bg-audio');
+        const heroVideo = document.getElementById('hero-video');
         const playPauseBtn = document.getElementById('play-pause-btn');
         const visualizer = document.getElementById('audio-visualizer');
 
         startBtn.addEventListener('click', () => {
             enterScreen.style.opacity = '0';
-            setTimeout(() => { enterScreen.style.visibility = 'hidden'; }, 800);
-            
+            setTimeout(() => { enterScreen.style.visibility = 'hidden'; enterScreen.style.display = 'none'; }, 800);
+
+            // Start audio
             audio.volume = 0.8;
             audio.play().then(() => {
                 visualizer.classList.add('active');
-            }).catch(e => console.log("Audio non partito: ", e));
-            
-            startSlideshow();
+            }).catch(e => console.log("Audio error:", e));
+
+            // Start hero video (muted, no sound)
+            heroVideo.play().catch(e => console.log("Video error:", e));
+
             inizializzaContatoreVisite();
         });
 
-        /* --- PLAYER CONTROLS --- */
+        /* ===== PLAYER CONTROLS ===== */
         playPauseBtn.addEventListener('click', () => {
             if (audio.paused) {
                 audio.play();
@@ -447,15 +494,15 @@
             }
         });
 
-        /* --- VISITE E LIKE --- */
+        /* ===== VIEWS & LIKES ===== */
         function inizializzaContatoreVisite() {
             let visite = localStorage.getItem('pilu_views');
-            if(!visite) visite = Math.floor(Math.random() * (2500 - 1000) + 1000); 
+            if (!visite) visite = Math.floor(Math.random() * (2500 - 1000) + 1000);
             visite = parseInt(visite) + 1;
             localStorage.setItem('pilu_views', visite);
             document.getElementById('view-counter').innerText = visite.toLocaleString('it-IT');
 
-            if(localStorage.getItem('pilu_liked') === 'true') {
+            if (localStorage.getItem('pilu_liked') === 'true') {
                 document.getElementById('like-btn').classList.add('liked');
                 document.getElementById('like-text').innerText = "Ti Piace";
             }
@@ -464,33 +511,70 @@
         function toggleLike() {
             const btn = document.getElementById('like-btn');
             const testo = document.getElementById('like-text');
-            if(btn.classList.contains('liked')) {
-                btn.classList.remove('liked'); testo.innerText = 'Mi Piace'; localStorage.setItem('pilu_liked', 'false');
+            if (btn.classList.contains('liked')) {
+                btn.classList.remove('liked'); testo.innerText = 'Mi Piace';
+                localStorage.setItem('pilu_liked', 'false');
             } else {
-                btn.classList.add('liked'); testo.innerText = 'Ti Piace'; localStorage.setItem('pilu_liked', 'true');
+                btn.classList.add('liked'); testo.innerText = 'Ti Piace';
+                localStorage.setItem('pilu_liked', 'true');
             }
         }
 
-        /* --- COUNTDOWN (SETTATO ALLE 20:00) --- */
-        function updateCountdowns() {
-            const oraAttuale = new Date().getTime();
-            document.querySelectorAll('.countdown').forEach(el => {
-                let dataBase = el.getAttribute('data-date'); // Es: "2026-02-20"
-                // Aggiungiamo forzatamente le ore 20:00 (formato ISO compatibile anche su Safari/iOS)
-                let dataString = dataBase.includes('T') ? dataBase : `${dataBase}T20:00:00`;
-                
-                const dataTarget = new Date(dataString).getTime();
-                const differenza = dataTarget - oraAttuale;
+        /* ===== EVENTS — Sorted chronologically ===== */
+        function buildEvents() {
+            const container = document.getElementById('events-container');
+            const now = Date.now();
 
-                if (differenza <= 0) {
-                    el.innerHTML = "<span class='ended-text'>🛑 EVENTO CONCLUSO</span>";
+            // Sort: upcoming first (nearest to farthest), then concluded (most recent first)
+            const upcoming = eventsData
+                .filter(e => new Date(e.date).getTime() > now)
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            const concluded = eventsData
+                .filter(e => new Date(e.date).getTime() <= now)
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            function createCard(ev, isConcluded) {
+                const card = document.createElement('div');
+                card.className = 'event-card' + (isConcluded ? ' concluded' : '');
+                card.innerHTML = `
+                    <img src="${ev.img}" class="flyer-img" alt="${ev.title}" loading="lazy">
+                    <div class="timer-container">
+                        <div class="timer-title">${ev.title}</div>
+                        <div class="countdown" data-date="${ev.date}"></div>
+                    </div>
+                `;
+                return card;
+            }
+
+            upcoming.forEach(ev => container.appendChild(createCard(ev, false)));
+
+            if (concluded.length > 0) {
+                const divider = document.createElement('div');
+                divider.className = 'events-divider';
+                divider.innerHTML = '<span>Eventi Conclusi</span>';
+                container.appendChild(divider);
+                concluded.forEach(ev => container.appendChild(createCard(ev, true)));
+            }
+        }
+        buildEvents();
+
+        /* ===== COUNTDOWN ===== */
+        function updateCountdowns() {
+            const now = Date.now();
+            document.querySelectorAll('.countdown').forEach(el => {
+                const target = new Date(el.getAttribute('data-date')).getTime();
+                const diff = target - now;
+
+                if (diff <= 0) {
+                    el.innerHTML = "<span class='ended-text'>Evento Concluso</span>";
                     return;
                 }
 
-                const g = Math.floor(differenza / (1000 * 60 * 60 * 24));
-                const h = Math.floor((differenza % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const m = Math.floor((differenza % (1000 * 60 * 60)) / (1000 * 60));
-                const s = Math.floor((differenza % (1000 * 60)) / 1000);
+                const g = Math.floor(diff / 86400000);
+                const h = Math.floor((diff % 86400000) / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
 
                 el.innerHTML = `
                     <div class="time-box"><span class="time-val">${g}</span><span class="time-lbl">GG</span></div>
@@ -501,65 +585,127 @@
             });
         }
         setInterval(updateCountdowns, 1000);
-        updateCountdowns(); 
+        updateCountdowns();
 
-        /* --- LIGHTBOX --- */
-        function openLightbox(src) { document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').classList.add('show'); }
-        function closeLightbox() { document.getElementById('lightbox').classList.remove('show'); }
+        /* ===== GALLERY ===== */
+        function buildGallery() {
+            const grid = document.getElementById('gallery-grid');
 
-        /* --- SLIDESHOW --- */
-        let slides = document.querySelectorAll(".mySlides");
-        let currentSlide = 0;
-        function startSlideshow() {
-            if(slides.length > 0) {
-                slides[0].classList.add("active");
-                setInterval(() => {
-                    slides[currentSlide].classList.remove("active");
-                    currentSlide = (currentSlide + 1) % slides.length;
-                    slides[currentSlide].classList.add("active");
-                }, 4500);
-            }
+            galleryItems.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'gallery-item' + (item.type === 'video' ? ' video-item wide' : '');
+
+                if (item.type === 'video') {
+                    const vid = document.createElement('video');
+                    vid.src = item.src;
+                    vid.muted = true;
+                    vid.loop = true;
+                    vid.playsInline = true;
+                    vid.preload = 'metadata';
+                    vid.setAttribute('playsinline', '');
+                    div.appendChild(vid);
+                    div.addEventListener('click', () => openLightboxVideo(item.src));
+
+                    // Auto-play preview on scroll into view
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) vid.play().catch(() => {});
+                            else vid.pause();
+                        });
+                    }, { threshold: 0.3 });
+                    observer.observe(div);
+                } else {
+                    const img = document.createElement('img');
+                    img.src = item.src;
+                    img.alt = 'DJ Pilu';
+                    img.loading = 'lazy';
+                    div.appendChild(img);
+                    div.addEventListener('click', () => openLightboxImage(item.src));
+                }
+
+                grid.appendChild(div);
+            });
+        }
+        buildGallery();
+
+        /* ===== LIGHTBOX ===== */
+        const lightbox = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lightbox-img');
+        const lbVid = document.getElementById('lightbox-video');
+
+        function openLightboxImage(src) {
+            lbImg.src = src;
+            lbImg.style.display = 'block';
+            lbVid.style.display = 'none';
+            lbVid.pause();
+            lightbox.classList.add('show');
         }
 
-        /* --- SCROLL REVEAL (Animazioni comparsa) --- */
-        const revealElements = document.querySelectorAll('.reveal');
-        const revealCallback = (entries, observer) => {
-            entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('active'); } });
-        };
-        const revealObserver = new IntersectionObserver(revealCallback, { threshold: 0.15 });
-        revealElements.forEach(el => revealObserver.observe(el));
+        function openLightboxVideo(src) {
+            lbVid.src = src;
+            lbVid.style.display = 'block';
+            lbImg.style.display = 'none';
+            lightbox.classList.add('show');
+            lbVid.play().catch(() => {});
+        }
 
-        /* --- MOTORE FUMO (Migliorato) --- */
+        function closeLightbox() {
+            lightbox.classList.remove('show');
+            lbVid.pause();
+            lbVid.src = '';
+            lbImg.src = '';
+        }
+
+        // Close lightbox on background click (not on media click)
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox || e.target === document.getElementById('lightbox-close')) {
+                closeLightbox();
+            }
+        });
+
+        /* ===== SCROLL REVEAL ===== */
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        /* ===== SMOKE ENGINE ===== */
         const canvas = document.getElementById('smoke-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
+
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        for(let i = 0; i < 40; i++) {
+        for (let i = 0; i < 35; i++) {
             particles.push({
                 x: Math.random() * canvas.width,
                 y: canvas.height + Math.random() * 200,
-                r: Math.random() * 80 + 40,
-                vx: Math.random() * 0.5 - 0.25,
-                vy: Math.random() * -1 - 0.5,
-                opacity: Math.random() * 0.06 + 0.02
+                r: Math.random() * 90 + 40,
+                vx: Math.random() * 0.4 - 0.2,
+                vy: Math.random() * -0.8 - 0.3,
+                opacity: Math.random() * 0.05 + 0.015
             });
         }
+
         function drawSmoke() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => {
                 p.x += p.vx; p.y += p.vy;
-                if(p.y < -p.r * 2) { p.y = canvas.height + p.r; p.x = Math.random() * canvas.width; }
-                if(p.x < -p.r) p.x = canvas.width + p.r;
-                if(p.x > canvas.width + p.r) p.x = -p.r;
+                if (p.y < -p.r * 2) { p.y = canvas.height + p.r; p.x = Math.random() * canvas.width; }
+                if (p.x < -p.r) p.x = canvas.width + p.r;
+                if (p.x > canvas.width + p.r) p.x = -p.r;
 
                 ctx.beginPath();
-                let grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
-                grad.addColorStop(0, `rgba(220, 200, 180, ${p.opacity})`); 
-                grad.addColorStop(1, 'rgba(220, 200, 180, 0)');
-                ctx.fillStyle = grad; ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+                const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+                grad.addColorStop(0, `rgba(200, 180, 150, ${p.opacity})`);
+                grad.addColorStop(1, 'rgba(200, 180, 150, 0)');
+                ctx.fillStyle = grad;
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fill();
             });
             requestAnimationFrame(drawSmoke);
         }

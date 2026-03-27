@@ -449,8 +449,8 @@
 
         // Gallery items — videos first for prominence, then photos
         const galleryItems = [
-            { type: "video", src: "video2.mp4" },
-            { type: "video", src: "video3.mp4" },
+            { type: "video", src: "video2.mov" },
+            { type: "video", src: "video3.mov" },
         ];
         // Add foto1 through foto26
         for (let i = 1; i <= 26; i++) {
@@ -597,7 +597,11 @@
 
                 if (item.type === 'video') {
                     const vid = document.createElement('video');
-                    vid.src = item.src;
+                    // Set source with correct MIME type (supports both .mp4 and .mov)
+                    const source = document.createElement('source');
+                    source.src = item.src;
+                    source.type = item.src.endsWith('.mov') ? 'video/quicktime' : 'video/mp4';
+                    vid.appendChild(source);
                     vid.muted = true;
                     vid.loop = true;
                     vid.playsInline = true;

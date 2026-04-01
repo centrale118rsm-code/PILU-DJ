@@ -10,113 +10,268 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        :root{--gold:#C9A84C;--gl:#E8C97A;--gg:rgba(201,168,76,.35);--dark:#060606;--d2:#0E0E0E;--d3:#141414;--light:#F0EDE8;--mu:rgba(240,237,232,.6)}
-        *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-        body{background:var(--dark);color:var(--light);font-family:'Inter',sans-serif;overflow-x:hidden;line-height:1.6}
-        h1,h2,h3,.bn{font-family:'Bebas Neue',cursive;letter-spacing:1px;text-transform:uppercase}
-        
-        #sc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.5}
-        .main{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 20px}
-        
-        nav{height:90px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:60px}
-        .l{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:24px;color:var(--gold);text-decoration:none;display:flex;align-items:center;gap:10px}
-        .l span{color:var(--light);font-weight:300;font-size:14px;letter-spacing:3px}
-        .si{display:flex;gap:20px}
-        .si a{color:var(--light);text-decoration:none;font-size:20px;transition:.3s}
-        .si a:hover{color:var(--gold);transform:translateY(-3px)}
+:root{--gold:#C9A84C;--gl:#E8C97A;--gg:rgba(201,168,76,.35);--dark:#060606;--d2:#0E0E0E;--d3:#141414;--light:#F0EDE8;--mu:rgba(240,237,232,.45);--g2:rgba(255,255,255,.04);--bd:rgba(255,255,255,.07);--sc:#FF5500;--r:14px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
 
-        header{text-align:center;padding:40px 0 100px}
-        .ht{font-size:clamp(60px,15vw,180px);line-height:.85;margin-bottom:20px;background:linear-gradient(to bottom, #fff 30%, var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 10px 20px rgba(0,0,0,.5))}
-        .hs{font-family:'Space Grotesk',sans-serif;font-size:clamp(14px,2vw,18px);text-transform:uppercase;letter-spacing:8px;color:var(--mu);margin-bottom:40px;display:block}
-        
-        section{margin-bottom:120px}
-        .st{font-size:40px;margin-bottom:40px;display:flex;align-items:center;gap:20px}
-        .st::after{content:'';height:1px;background:var(--gg);flex:1}
+/* SFONDO DINAMICO CSS */
+body{
+    font-family:'Inter',-apple-system,sans-serif;
+    color:var(--light);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    /* Crea un pattern simile all'immagine con gradienti e colori scuri */
+    background-color: #030303;
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(20, 20, 20, 0.8) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(25, 25, 25, 0.7) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(15, 15, 15, 0.9) 0%, transparent 60%);
+    background-attachment: fixed; /* Mantiene lo sfondo fermo durante lo scroll */
+}
 
-        /* EVENTS GRID */
-        .eg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:30px}
-        .ec{background:var(--d2);border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.05);transition:.4s;position:relative}
-        .ec:hover{transform:translateY(-10px);border-color:var(--gg);box-shadow:0 20px 40px rgba(0,0,0,.4)}
-        .ei{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
-        .ed{padding:20px;background:linear-gradient(transparent, rgba(0,0,0,.9));position:absolute;bottom:0;width:100%;display:flex;justify-content:space-between;align-items:flex-end}
-        .et{font-size:24px;color:var(--gold)}
-        .ey{font-size:14px;color:var(--mu)}
+/* RUMORE VISIVO (FILTRO SVG) - Aumentato leggermente l'opacità per matchare lo screen */
+body::after{
+    content:'';
+    position:fixed;
+    inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events:none;
+    z-index:9998;
+    opacity: 0.9; 
+}
 
-        /* VIBES GALLERY */
-        .vg{columns:2;column-gap:15px}
-        .vi{break-inside:avoid;margin-bottom:15px;border-radius:10px;overflow:hidden;cursor:pointer;position:relative;border:1px solid rgba(255,255,255,.05);transition:.3s}
-        .vi:hover{border-color:var(--gold);transform:scale(1.02)}
-        .vi img,.vi video{width:100%;display:block}
-        .vp{position:absolute;top:15px;right:15px;background:rgba(0,0,0,.6);width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;backdrop-filter:blur(4px)}
+/* SPLASH, HUD, PLAYER */
+#splash{
+    position:fixed;inset:0;z-index:99999;
+    background-color: #030303;
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(20, 20, 20, 0.8) 0%, transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(25, 25, 25, 0.7) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(15, 15, 15, 0.9) 0%, transparent 60%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1s ease,visibility 1s ease
+}
+#splash.hide{opacity:0;visibility:hidden;pointer-events:none}
+.sp-logo{font-family:'Bebas Neue',sans-serif;font-size:30vw;line-height:1;color:transparent;-webkit-text-stroke:1px rgba(201,168,76,.6);letter-spacing:4vw;animation:lb 3s ease-in-out infinite;user-select:none}
+@keyframes lb{0%,100%{-webkit-text-stroke-color:rgba(201,168,76,.35)}50%{-webkit-text-stroke-color:rgba(201,168,76,1)}}
+.sp-line{width:40px;height:1px;background:var(--gold);margin:18px auto;animation:lg 1.8s ease-out forwards .6s;transform:scaleX(0);transform-origin:center}
+@keyframes lg{to{transform:scaleX(1)}}
+.sp-sub{font-family:'Space Grotesk',sans-serif;font-size:3.2vw;letter-spacing:6px;text-transform:uppercase;color:var(--mu);margin-bottom:50px}
+.enter-btn{position:relative;overflow:hidden;padding:14px 48px;font-family:'Space Grotesk',sans-serif;font-size:3.5vw;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--dark);background:var(--gold);border:none;border-radius:60px;cursor:pointer;box-shadow:0 0 40px var(--gg);transition:transform .15s}
+.enter-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-100%);animation:sh 2.5s infinite 1s}
+@keyframes sh{to{transform:translateX(200%)}}
+.enter-btn:active{transform:scale(.95)}
 
-        /* REVIEWS */
-        .rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px}
-        .rc{background:var(--d3);padding:30px;border-radius:15px;border-left:4px solid var(--gold)}
-        .rn{font-weight:700;margin-bottom:10px;display:block}
-        .rt{font-style:italic;color:var(--mu);font-size:15px}
-        .rs{color:var(--gold);margin-top:15px;font-size:12px;display:block}
+#hud{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;pointer-events:none}
+.hl{display:flex;gap:7px;pointer-events:auto}
+.hr{display:flex;flex-direction:column;align-items:flex-end;gap:7px;pointer-events:auto}
+.hi{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;text-decoration:none;color:#fff;background:rgba(6,6,6,.72);border:1px solid var(--bd);backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);box-shadow:0 2px 12px rgba(0,0,0,.5);transition:transform .15s}
+.hi:active{transform:scale(.84)}
+.hi .fa-whatsapp{color:#25D366}
+.hi .fa-instagram{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#bc1888);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hi .fa-soundcloud{color:var(--sc)}
+.hi .fa-spotify{color:#1DB954}
+.hi .fa-link{color:#43E660}
+.hp{display:flex;align-items:center;gap:6px;padding:6px 13px;border-radius:20px;background:rgba(6,6,6,.72);border:1px solid var(--bd);backdrop-filter:blur(20px);font-size:3vw;font-weight:600;color:var(--light);box-shadow:0 2px 12px rgba(0,0,0,.5);cursor:pointer;user-select:none;}
+.hp i{font-size:3.2vw;color:rgba(255,255,255,.35);}
+#like-btn.liked{border-color:rgba(255,80,80,.5);color:#ff5050}
+#like-btn.liked i{color:#ff5050}
 
-        /* MODAL */
-        #lb{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.95);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px)}
-        #lb.show{display:flex}
-        #lb img,#lb video{max-width:100%;max-height:90vh;border-radius:8px;box-shadow:0 0 50px rgba(0,0,0,1)}
-        #lbc{position:absolute;top:30px;right:30px;font-size:40px;cursor:pointer}
+#player{position:fixed;bottom:22px;left:16px;z-index:1000;display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:50px;background:rgba(6,6,6,.88);border:1px solid var(--bd);backdrop-filter:blur(24px);box-shadow:0 4px 24px rgba(0,0,0,.6)}
+#ppb{background:none;border:none;color:var(--gold);font-size:18px;cursor:pointer;outline:none;width:28px;height:28px;display:flex;align-items:center;justify-content:center}
+.viz{display:flex;align-items:flex-end;gap:2.5px;height:16px}
+.vb{width:2.5px;background:var(--gold);border-radius:2px;height:2px}
+.viz.on .vb:nth-child(1){animation:vb 1.1s ease-in-out infinite}
+.viz.on .vb:nth-child(2){animation:vb .8s ease-in-out infinite .15s}
+.viz.on .vb:nth-child(3){animation:vb 1.4s ease-in-out infinite .05s}
+.viz.on .vb:nth-child(4){animation:vb 1.0s ease-in-out infinite .25s}
+.viz.on .vb:nth-child(5){animation:vb 1.3s ease-in-out infinite .1s}
+@keyframes vb{0%,100%{height:2px}50%{height:16px}}
 
-        @media(max-width:768px){ .vg{columns:2} .ht{font-size:80px} nav{height:70px} }
-        .reveal{opacity:0;transform:translateY(30px);transition:1s ease-out}
-        .reveal.on{opacity:1;transform:translateY(0)}
+#book-btn{position:fixed;bottom:22px;right:16px;z-index:1000;width:52px;height:52px;border-radius:50%;background:var(--gold);color:var(--dark);display:flex;align-items:center;justify-content:center;font-size:20px;text-decoration:none;box-shadow:0 4px 20px var(--gg);animation:fy 3.5s ease-in-out infinite}
+@keyframes fy{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+#sc{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.4;mix-blend-mode:screen}
+
+#hero{position:relative;width:100vw;height:100svh;display:flex;flex-direction:column;justify-content:flex-end;z-index:1;overflow:hidden}
+.hv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;opacity:.55;transform:translateZ(0);will-change:transform}
+.ho{position:absolute;inset:0;z-index:-1;background:linear-gradient(to top,rgba(6,6,6,1) 0%,rgba(6,6,6,.55) 40%,rgba(6,6,6,.2) 75%,rgba(0,0,0,.3) 100%),linear-gradient(to right,rgba(6,6,6,.7) 0%,rgba(6,6,6,.1) 65%)}
+.hi2{padding:0 22px 18vh;width:100%}
+.he{display:inline-flex;align-items:center;gap:8px;margin-bottom:10px;font-family:'Space Grotesk',sans-serif;font-size:2.8vw;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--gold)}
+.ld{width:7px;height:7px;border-radius:50%;background:#FF3B30;box-shadow:0 0 8px #FF3B30;animation:bl 1.2s ease-in-out infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.2}}
+.hn{font-family:'Bebas Neue',sans-serif;font-size:34vw;line-height:.85;letter-spacing:1.5vw;color:#fff;text-shadow:0 0 120px rgba(201,168,76,.12)}
+.htag{margin-top:14px;font-family:'Space Grotesk',sans-serif;font-size:3.2vw;font-weight:400;color:var(--mu);letter-spacing:2px;text-transform:uppercase}
+.htag span{color:var(--gl);margin:0 4px}
+.hscr{position:absolute;bottom:7vh;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;z-index:5}
+.slbl{font-size:2.4vw;letter-spacing:4px;color:rgba(255,255,255,.3);text-transform:uppercase;font-weight:500}
+.sln{width:1px;height:32px;background:linear-gradient(to bottom,rgba(201,168,76,.8),transparent);animation:dp 2s ease-in-out infinite}
+@keyframes dp{0%{transform:scaleY(0);opacity:0}40%{opacity:1}100%{transform:scaleY(1);opacity:0}}
+
+/* SECTIONS */
+.section{position:relative;z-index:2;padding:70px 0 40px}
+.sec-hd{display:flex;align-items:baseline;gap:12px;padding:0 22px;margin-bottom:28px}
+.sec-n{font-family:'Space Grotesk',sans-serif;font-size:3vw;color:var(--gold);letter-spacing:2px;font-weight:700}
+.sec-t{font-family:'Bebas Neue',sans-serif;font-size:11vw;letter-spacing:2px;line-height:1;color:var(--light)}
+
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.reveal.on{opacity:1;transform:none}
+
+/* EVENTS */
+#ew{padding:0 22px}
+/* Sfondo eventi alleggerito per far vedere il nuovo background generale */
+.ec{position:relative;border-radius:var(--r);overflow:hidden;margin-bottom:18px;box-shadow:0 20px 60px rgba(0,0,0,.7);border:1px solid var(--bd);background:rgba(14, 14, 14, 0.4); backdrop-filter: blur(10px);}
+.ec.concluded{opacity:.5}
+.ef{width:100%;display:block}
+.efoot{padding:14px 18px 16px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(6,6,6,0) 0%,rgba(6,6,6,.95) 100%)}
+.cd{display:flex;gap:14px}
+.tb{display:flex;flex-direction:column;align-items:center}
+.tv{font-family:'Bebas Neue',sans-serif;font-size:9vw;color:var(--gl);line-height:1}
+.tl{font-size:2.3vw;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:1.5px;font-weight:600}
+.conc{font-family:'Space Grotesk',sans-serif;font-size:3.5vw;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.28);border:1px solid rgba(255,255,255,.1);padding:6px 18px;border-radius:40px}
+.ediv{display:flex;align-items:center;gap:14px;margin:28px 0 22px}
+.ediv::before,.ediv::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+.ediv span{font-size:2.8vw;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.22)}
+
+/* GALLERY */
+.gg{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.gi{position:relative;overflow:hidden;aspect-ratio:1/1;cursor:pointer;background:var(--d3)}
+.gi.wide{grid-column:span 2;aspect-ratio:2/1}
+.gi img,.gi video{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s cubic-bezier(.16,1,.3,1),filter .3s;filter:brightness(.82) saturate(.9)}
+.gi:active img,.gi:active video{transform:scale(1.06);filter:brightness(1)}
+.gi.isv::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.15);pointer-events:none}
+.pi{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.52);border:1.5px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center}
+.pi::after{content:'';width:0;height:0;border-style:solid;border-width:5.5px 0 5.5px 10px;border-color:transparent transparent transparent #fff;margin-left:2px}
+
+/* LIGHTBOX */
+#lb{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.97);display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .28s ease;flex-direction:column;padding:60px 10px 40px}
+#lb.show{display:flex;opacity:1}
+#lbi,#lbv{max-width:100%;max-height:80vh;border-radius:10px;display:none;box-shadow:0 0 60px rgba(0,0,0,.9)}
+#lbc{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid var(--bd);backdrop-filter:blur(12px);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* RECENSIONI */
+.rev-wrap{padding: 0 22px;}
+.rev-form { background: rgba(14, 14, 14, 0.4); backdrop-filter: blur(10px); padding: 20px; border-radius: var(--r); border: 1px solid var(--bd); margin-bottom: 20px;}
+.rev-form input, .rev-form select, .rev-form textarea { width: 100%; background: #1a1a1a; color: #fff; border: 1px solid #333; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-family: inherit; font-size: 15px;}
+.rev-form button { background: var(--gold); color: #000; font-weight: bold; padding: 12px; border: none; border-radius: 8px; width: 100%; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; font-family: 'Space Grotesk', sans-serif;}
+.rev-card { background: rgba(255,255,255,0.02); padding: 16px; border-radius: var(--r); margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.03); }
+.rev-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;}
+.rev-name { font-weight: 600; color: var(--gold); font-size: 16px;}
+.rev-stars { color: #FFD700; font-size: 12px;}
+.rev-text { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5; font-style: italic;}
+
+/* CONNECT */
+#lw{padding:0 22px;display:flex;flex-direction:column;gap:10px}
+.cb{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:var(--r);text-decoration:none;color:var(--light);background:var(--g2);border:1px solid var(--bd);transition:border-color .25s,transform .15s}
+.cb:active{transform:scale(.97)}
+.cbi{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cbt{flex:1}
+.cbl{font-family:'Space Grotesk',sans-serif;font-size:4vw;font-weight:700;line-height:1.2}
+.cbs{font-size:3vw;color:var(--mu);margin-top:2px}
+.cba{font-size:13px;color:rgba(255,255,255,.18)}
+.wa .cbi{background:rgba(37,211,102,.1);color:#25D366}
+.ig .cbi{background:rgba(225,48,108,.1);color:#E1306C}
+.scc .cbi{background:rgba(255,85,0,.1);color:var(--sc)}
+.lt .cbi{background:rgba(67,230,96,.1);color:#43E660}
+
+footer{padding:60px 22px 120px;border-top:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;gap:12px}
+.fl{font-family:'Bebas Neue',sans-serif;font-size:20vw;letter-spacing:4vw;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.06);line-height:1}
+.fc{font-size:3vw;color:rgba(255,255,255,.2);text-align:center;line-height:1.9;letter-spacing:.5px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap;}
+.fd{color:var(--gold);margin:0 6px}
+.admin-btn{color:rgba(255,255,255,.1); font-size: 14px; margin-left: 8px; text-decoration: none;}
     </style>
 </head>
 <body>
 
+<div id="splash">
+    <div class="sp-logo">PILU</div>
+    <div class="sp-line"></div>
+    <div class="sp-sub">Pierluigi Berardi</div>
+    <button class="enter-btn" id="sb">Entra</button>
+</div>
+
+<div id="hud">
+    <div class="hl">
+        <a href="https://wa.me/393337597075" class="hi"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://www.instagram.com/pierluigi_berardi/" class="hi"><i class="fab fa-instagram"></i></a>
+        <a href="https://soundcloud.com/pierluigi-berardi" class="hi"><i class="fab fa-soundcloud"></i></a>
+        <a href="https://linktr.ee/PierluigiBerardi" class="hi"><i class="fas fa-link"></i></a>
+    </div>
+    <div class="hr">
+        <div class="hp"><i class="fas fa-eye"></i><span id="view-counter">—</span></div>
+        <div class="hp" id="like-btn"><i class="fas fa-heart"></i><span id="like-text">Mi Piace</span></div>
+    </div>
+</div>
+
+<audio id="bg-audio" loop preload="auto"><source src="audio.mp3" type="audio/mpeg"></audio>
+
+<div id="player">
+    <button id="ppb"><i class="fas fa-pause"></i></button>
+    <div class="viz" id="viz">
+        <div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div><div class="vb"></div>
+    </div>
+</div>
+
 <canvas id="sc"></canvas>
 
-<div class="main">
-    <nav>
-        <a href="#" class="l">PILU<span>RSM</span></a>
-        <div class="si">
-            <a href="https://www.instagram.com/pierluigi_berardi/" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="https://www.facebook.com/pierluigi.berardi.7" target="_blank"><i class="fab fa-facebook"></i></a>
-            <a href="admin.html" style="opacity:0.3; font-size: 12px;"><i class="fas fa-lock"></i></a>
-        </div>
-    </nav>
-
-    <header class="reveal">
-        <span class="hs">Eclectic DJ & Performer</span>
-        <h1 class="ht">PIERLUIGI<br>BERARDI</h1>
-    </header>
-
-    <section id="events" class="reveal">
-        <h2 class="st">Next Events</h2>
-        <div id="eg" class="eg">
-            </div>
-    </section>
-
-    <section id="vibes" class="reveal">
-        <h2 class="st">Vibes</h2>
-        <div id="vg" class="vg">
-            </div>
-    </section>
-
-    <section id="reviews" class="reveal">
-        <h2 class="st">Fan Love</h2>
-        <div id="rg" class="rg">
-            </div>
-    </section>
-
-    <footer style="padding:60px 0;text-align:center;border-top:1px solid rgba(255,255,255,.05);color:var(--mu);font-size:12px;letter-spacing:2px;text-transform:uppercase">
-        © 2026 Pierluigi Berardi — All Vibes Reserved
-    </footer>
-</div>
-
 <div id="lb">
-    <div id="lbc">×</div>
-    <div id="lbcontent"></div>
+    <button id="lbc"><i class="fas fa-times"></i></button>
+    <img id="lbi" src="">
+    <video id="lbv" controls playsinline></video>
 </div>
+
+<header id="hero">
+    <video class="hv" id="hv" muted loop playsinline autoplay><source src="video1.mp4" type="video/mp4"></video>
+    <div class="ho"></div>
+    <div class="hi2">
+        <div class="he"><span class="ld"></span> On Tour</div>
+        <h1 class="hn">PILU</h1>
+        <p class="htag">Pierluigi Berardi <span>·</span> Afro House <span>·</span> San Marino 🇸🇲</p>
+    </div>
+</header>
+
+<section class="section" id="shows">
+    <div class="sec-hd reveal"><span class="sec-n">01</span><h2 class="sec-t">Shows</h2></div>
+    <div id="ew" class="reveal"></div>
+</section>
+
+<section class="section" id="gallery">
+    <div class="sec-hd reveal"><span class="sec-n">02</span><h2 class="sec-t">Vibes</h2></div>
+    <div class="gg reveal" id="gallery-grid"></div>
+</section>
+
+<section class="section" id="recensioni">
+    <div class="sec-hd reveal"><span class="sec-n">03</span><h2 class="sec-t">Feedback</h2></div>
+    <div class="rev-wrap reveal">
+        <div class="rev-form">
+            <input type="text" id="rev-name" placeholder="Il tuo nome (es. Marco)" maxlength="20">
+            <select id="rev-stars">
+                <option value="5">⭐⭐⭐⭐⭐ (Bomba!)</option>
+                <option value="4">⭐⭐⭐⭐ (Ottimo)</option>
+                <option value="3">⭐⭐⭐ (Buono)</option>
+            </select>
+            <textarea id="rev-text" placeholder="Com'è stata la serata?" rows="3"></textarea>
+            <button id="btn-invia-rev">Lascia una recensione</button>
+        </div>
+        <div id="rev-list"></div>
+    </div>
+</section>
+
+<section class="section" id="links">
+    <div class="sec-hd reveal"><span class="sec-n">04</span><h2 class="sec-t">Connect</h2></div>
+    <div id="lw" class="reveal">
+        <a href="https://wa.me/393337597075" class="cb wa"><div class="cbi"><i class="fab fa-whatsapp"></i></div><div class="cbt"><div class="cbl">WhatsApp</div><div class="cbs">Booking</div></div></a>
+        <a href="https://www.instagram.com/pierluigi_berardi/" class="cb ig"><div class="cbi"><i class="fab fa-instagram"></i></div><div class="cbt"><div class="cbl">Instagram</div><div class="cbs">@pierluigi_berardi</div></div></a>
+    </div>
+</section>
+
+<footer>
+    <div class="fl">PILU</div>
+    <p class="fc">© 2026 Pierluigi Berardi <span class="fd">◈</span> DJ Pilu <a href="admin.html" class="admin-btn"><i class="fas fa-lock"></i></a></p>
+</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, query, orderBy, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDPAwh58NCFJ3CoTLvG8KcVXC5oQPIzXiI",
@@ -130,127 +285,124 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// CARICA EVENTI
-async function loadEvents() {
-    const q = query(collection(db, "eventi"), orderBy("date", "asc"));
-    const snap = await getDocs(q);
-    const container = document.getElementById('eg');
-    container.innerHTML = '';
+async function caricaContenuti() {
+    try {
+        // Eventi
+        const snapEv = await getDocs(query(collection(db, "eventi"), orderBy("date", "asc")));
+        buildEvents(snapEv.docs.map(doc => doc.data()));
+
+        // Gallery
+        const snapGal = await getDocs(query(collection(db, "gallery"), orderBy("ordine", "asc")));
+        buildGallery(snapGal.docs.map(doc => doc.data()));
+
+        // Recensioni
+        caricaRecensioni();
+
+    } catch (e) { console.error(e); }
+}
+
+// LOGICA RECENSIONI
+async function caricaRecensioni() {
+    const list = document.getElementById('rev-list');
+    list.innerHTML = "";
+    const snapRev = await getDocs(query(collection(db, "recensioni"), orderBy("timestamp", "desc")));
     
-    if (snap.empty) {
-        container.innerHTML = '<p style="color:var(--mu)">Nessun evento in programma.</p>';
-        return;
-    }
-
-    snap.forEach(doc => {
-        const d = doc.data();
-        const date = new Date(d.date);
-        const day = date.getDate();
-        const month = date.toLocaleString('it-IT', { month: 'short' });
-        
-        container.innerHTML += `
-            <div class="ec">
-                <img src="${d.img}" class="ei" loading="lazy">
-                <div class="ed">
-                    <div class="et">${day} ${month}</div>
-                    <div class="ey">Live Mix</div>
-                </div>
-            </div>
-        `;
+    snapRev.forEach(doc => {
+        const data = doc.data();
+        const stars = "⭐".repeat(data.stelle);
+        const div = document.createElement('div');
+        div.className = 'rev-card';
+        div.innerHTML = `<div class="rev-head"><span class="rev-name">${data.nome}</span><span class="rev-stars">${stars}</span></div><div class="rev-text">"${data.testo}"</div>`;
+        list.appendChild(div);
     });
 }
 
-// CARICA VIBES (GALLERIA)
-async function loadVibes() {
-    // Usiamo la collezione "gallery" e ordiniamo per il campo "ordine"
-    const q = query(collection(db, "gallery"), orderBy("ordine", "asc"));
-    const snap = await getDocs(q);
-    const container = document.getElementById('vg');
-    container.innerHTML = '';
+document.getElementById('btn-invia-rev').addEventListener('click', async () => {
+    const nome = document.getElementById('rev-name').value.trim();
+    const testo = document.getElementById('rev-text').value.trim();
+    const stelle = parseInt(document.getElementById('rev-stars').value);
+    
+    if(!nome || !testo) return alert("Inserisci nome e recensione!");
+    
+    document.getElementById('btn-invia-rev').innerText = "Invio in corso...";
+    
+    await addDoc(collection(db, "recensioni"), {
+        nome: nome, testo: testo, stelle: stelle, timestamp: serverTimestamp()
+    });
+    
+    document.getElementById('rev-name').value = "";
+    document.getElementById('rev-text').value = "";
+    document.getElementById('btn-invia-rev').innerText = "Lascia una recensione";
+    caricaRecensioni(); // Ricarica la lista aggiornata
+});
 
-    if (snap.empty) {
-        container.innerHTML = '<p style="color:var(--mu)">Galleria in arrivo...</p>';
-        return;
-    }
+// LOGICA EVENTI E GALLERIA
+function buildEvents(data) {
+    const w = document.getElementById('ew'); w.innerHTML = ""; const now = Date.now();
+    const up = data.filter(e => new Date(e.date) > now), dn = data.filter(e => new Date(e.date) <= now);
+    function card(ev, c) { const el = document.createElement('div'); el.className = 'ec' + (c ? ' concluded' : ''); el.innerHTML = `<img src="${ev.img}" class="ef"><div class="efoot"><div class="cd" data-date="${ev.date}"></div></div>`; return el; }
+    up.forEach(e => w.appendChild(card(e, false)));
+    if(dn.length) { const d = document.createElement('div'); d.className = 'ediv'; d.innerHTML = '<span>eventi conclusi</span>'; w.appendChild(d); dn.forEach(e => w.appendChild(card(e, true))); }
+    tick();
+}
 
-    snap.forEach(doc => {
-        const d = doc.data();
-        const isVid = d.type === 'video';
-        const item = document.createElement('div');
-        item.className = 'vi';
-        
-        if(isVid) {
-            item.innerHTML = `<video src="${d.src}" muted playsinline loop></video><div class="vp"><i class="fas fa-play"></i></div>`;
-            item.onclick = () => openLB(d.src, true);
-            // Autoplay al passaggio del mouse per i video
-            item.onmouseenter = () => item.querySelector('video').play();
-            item.onmouseleave = () => { const v = item.querySelector('video'); v.pause(); v.currentTime = 0; };
+function buildGallery(items) {
+    const grid = document.getElementById('gallery-grid'); grid.innerHTML = ""; 
+    items.forEach(item => {
+        const wrap = document.createElement('div'); const isV = item.type === 'video'; wrap.className = 'gi' + (isV ? ' isv wide' : '');
+        if(isV) {
+            wrap.innerHTML = `<video muted loop playsinline><source src="${item.src}" type="video/mp4"></video><div class="pi"></div>`;
+            wrap.addEventListener('click', () => openVid(item.src));
         } else {
-            item.innerHTML = `<img src="${d.src}" loading="lazy">`;
-            item.onclick = () => openLB(d.src, false);
+            wrap.innerHTML = `<img src="${item.src}" loading="lazy">`; wrap.addEventListener('click', () => openImg(item.src));
         }
-        container.appendChild(item);
+        grid.appendChild(wrap);
     });
 }
 
-// CARICA RECENSIONI
-async function loadReviews() {
-    const q = query(collection(db, "recensioni"), orderBy("timestamp", "desc"), limit(6));
-    const snap = await getDocs(q);
-    const container = document.getElementById('rg');
-    container.innerHTML = '';
+// UI SITO
+const splash = document.getElementById('splash'), audio = document.getElementById('bg-audio'), hv = document.getElementById('hv'), ppb = document.getElementById('ppb'), viz = document.getElementById('viz');
+document.getElementById('sb').addEventListener('click', () => {
+    splash.classList.add('hide'); audio.volume = .75; audio.play().then(() => viz.classList.add('on')).catch(()=>{}); hv.play().catch(()=>{});
+    initViews(); caricaContenuti();
+});
+ppb.addEventListener('click', () => {
+    if(audio.paused) { audio.play(); ppb.innerHTML = '<i class="fas fa-pause"></i>'; viz.classList.add('on'); }
+    else { audio.pause(); ppb.innerHTML = '<i class="fas fa-play"></i>'; viz.classList.remove('on'); }
+});
 
-    snap.forEach(doc => {
-        const d = doc.data();
-        container.innerHTML += `
-            <div class="rc">
-                <span class="rn">${d.nome}</span>
-                <p class="rt">"${d.testo}"</p>
-                <span class="rs">${"★".repeat(d.stelle || 5)}</span>
-            </div>
-        `;
+function initViews() {
+    let v = parseInt(localStorage.getItem('pilu_views') || '0'); if(v < 1000) v = Math.floor(Math.random() * 1500 + 1000);
+    v++; localStorage.setItem('pilu_views', v); document.getElementById('view-counter').textContent = v.toLocaleString('it-IT');
+    if(localStorage.getItem('pilu_liked') === 'true') { document.getElementById('like-btn').classList.add('liked'); }
+}
+document.getElementById('like-btn').addEventListener('click', function() {
+    const on = this.classList.toggle('liked'); localStorage.setItem('pilu_liked', on);
+});
+
+function tick() {
+    const now = Date.now();
+    document.querySelectorAll('.cd').forEach(el => {
+        const diff = new Date(el.dataset.date) - now;
+        if(diff <= 0) { el.innerHTML = `<span class="conc">Concluso</span>`; return; }
+        const d = Math.floor(diff / 864e5), h = Math.floor(diff % 864e5 / 36e5), m = Math.floor(diff % 36e5 / 6e4), s = Math.floor(diff % 6e4 / 1e3);
+        el.innerHTML = `<div class="tb"><span class="tv">${d}</span><span class="tl">GG</span></div><div class="tb"><span class="tv">${h}</span><span class="tl">H</span></div><div class="tb"><span class="tv">${m}</span><span class="tl">M</span></div><div class="tb"><span class="tv">${s}</span><span class="tl">S</span></div>`;
     });
-}
+} setInterval(tick, 1000);
 
-// LIGHTBOX
-const lb = document.getElementById('lb');
-const lbc = document.getElementById('lbcontent');
-function openLB(src, isVid) {
-    lbc.innerHTML = isVid ? `<video src="${src}" controls autoplay playsinline style="max-width:100%; max-height:80vh;"></video>` : `<img src="${src}">`;
-    lb.classList.add('show');
-}
-document.getElementById('lbc').onclick = () => {
-    lb.classList.remove('show');
-    lbc.innerHTML = '';
-};
+const lb = document.getElementById('lb'), lbi = document.getElementById('lbi'), lbv = document.getElementById('lbv');
+function openImg(src) { lbi.src = src; lbi.style.display = 'block'; lbv.style.display = 'none'; lbv.pause(); lb.classList.add('show'); }
+function openVid(src) { lbv.innerHTML = ''; const s = document.createElement('source'); s.src = src; s.type = 'video/mp4'; lbv.appendChild(s); lbv.load(); lbv.style.display = 'block'; lbi.style.display = 'none'; lb.classList.add('show'); lbv.play().catch(()=>{}); }
+document.getElementById('lbc').addEventListener('click', () => { lb.classList.remove('show'); lbv.pause(); lbv.innerHTML = ''; });
 
-// INIZIALIZZA
-loadEvents();
-loadVibes();
-loadReviews();
-
-// EFFETTO RIVELAZIONE AL CARICAMENTO/SCROLL
-const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); });
-}, {threshold: 0.1});
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); }), {threshold: .06}).observe(document.body);
+document.querySelectorAll('.reveal').forEach(el => new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); }), {threshold: .06}).observe(el));
 
 // EFFETTO FUMO
 const canvas = document.getElementById('sc'), ctx = canvas.getContext('2d');
 const rsz = () => { canvas.width = innerWidth; canvas.height = innerHeight; }; window.addEventListener('resize', rsz); rsz();
-const pts = Array.from({length: 25}, () => ({x: Math.random() * canvas.width, y: canvas.height + Math.random() * 100, r: Math.random() * 60 + 30, vy: -(Math.random() * 0.5 + 0.2), op: Math.random() * 0.05 + 0.01}));
-(function smoke() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    pts.forEach(p => {
-        p.y += p.vy;
-        if(p.y < -p.r) p.y = canvas.height + p.r;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(201,168,76,${p.op})`;
-        ctx.fill();
-    });
-    requestAnimationFrame(smoke);
-})();
+const pts = Array.from({length: 28}, () => ({x: Math.random() * canvas.width, y: canvas.height + Math.random() * 180, r: Math.random() * 80 + 35, vx: Math.random() * .3 - .15, vy: -(Math.random() * .6 + .2), op: Math.random() * .045 + .01}));
+(function smoke() { ctx.clearRect(0, 0, canvas.width, canvas.height); pts.forEach(p => { p.x += p.vx; p.y += p.vy; if(p.y < -p.r * 2) { p.y = canvas.height + p.r; p.x = Math.random() * canvas.width; } if(p.x < -p.r) p.x = canvas.width + p.r; if(p.x > canvas.width + p.r) p.x = -p.r; const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r); g.addColorStop(0, `rgba(210,185,140,${p.op})`); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = g; ctx.fill(); }); requestAnimationFrame(smoke); })();
 </script>
 </body>
 </html>

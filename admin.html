@@ -18,7 +18,7 @@
         #status { margin-top: 15px; font-size: 15px; font-weight: bold; min-height: 20px; }
         .back-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #888; margin-top: 10px; }
         
-        /* Stile lista eventi da gestire */
+        /* Stile lista eventi */
         .admin-event { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; }
         .admin-event img { max-width: 80px; border-radius: 4px; float: left; margin-right: 15px; }
         .admin-event .details { overflow: hidden; }
@@ -26,6 +26,11 @@
         .btn-group { display: flex; gap: 10px; margin-top: 10px; }
         .btn-edit { background: #43E660; padding: 8px; font-size: 12px; }
         .btn-del { background: #FF3B30; color: #fff; padding: 8px; font-size: 12px; }
+
+        /* Stile lista recensioni */
+        .admin-rev { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; }
+        .admin-rev-head { display: flex; justify-content: space-between; margin-bottom: 5px; color: #C9A84C; font-weight: bold; }
+        .admin-rev-text { font-size: 14px; color: #ccc; margin-bottom: 10px; font-style: italic; }
     </style>
 </head>
 <body>
@@ -49,6 +54,11 @@
             <h2>Gestione Eventi Caricati</h2>
             <div id="events-container">Sto caricando gli eventi...</div>
         </div>
+
+        <div id="lista-recensioni">
+            <h2>Gestione Recensioni</h2>
+            <div id="reviews-container">Sto caricando le recensioni...</div>
+        </div>
         
         <button class="back-btn" onclick="window.location.href='index.html'">Esci</button>
     </div>
@@ -69,15 +79,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// INCOLLA QUI LA CHIAVE IMGBB
-const IMGBB_API_KEY = "INCOLLA_QUI_LA_CHIAVE_IMGBB";
+// LA TUA CHIAVE IMGBB INSERITA CORRETTAMENTE
+const IMGBB_API_KEY = "e4660bfc2d38c3617e2bafc8230f3e37";
 
-// LOGIN
+// LOGIN E CARICAMENTO LISTE
 document.getElementById('btn-login').addEventListener('click', () => {
     if (document.getElementById('pass').value === "118rsm") {
         document.getElementById('login-box').classList.add('hidden');
         document.getElementById('admin-box').classList.remove('hidden');
-        loadAdminEvents(); // Carica la lista degli eventi appena loggato
+        loadAdminEvents(); 
+        loadAdminReviews(); 
     } else {
         alert("Password errata!");
         document.getElementById('pass').value = '';
@@ -108,28 +119,28 @@ document.getElementById('btn-upload').addEventListener('click', async () => {
         status.style.color = "#43E660";
         status.innerText = "Pubblicato! ✅";
         fileInput.value = ""; document.getElementById('data-evento').value = "";
-        loadAdminEvents(); // Ricarica la lista per mostrare il nuovo evento
+        loadAdminEvents(); 
     } catch (e) {
-        status.style.color = "#FF3B30"; status.innerText = "Errore.";
+        status.style.color = "#FF3B30"; status.innerText = "Errore durante l'upload.";
+        console.error(e);
     } finally {
         document.getElementById('btn-upload').disabled = false;
     }
 });
 
-// CARICA EVENTI PER MODIFICA/ELIMINAZIONE
+// CARICA EVENTI
 async function loadAdminEvents() {
     const container = document.getElementById('events-container');
     container.innerHTML = "Caricamento...";
     const snap = await getDocs(query(collection(db, "eventi"), orderBy("date", "desc")));
     
-    if(snap.empty) { container.innerHTML = "<p>Nessun evento caricato.</p>"; return; }
+    if(snap.empty) { container.innerHTML = "<p style='color:#888; font-size:14px;'>Nessun evento caricato.</p>"; return; }
     
     container.innerHTML = "";
     snap.forEach(docSnap => {
         const data = docSnap.data();
         const eventId = docSnap.id;
-        // Rimuove i secondi per visualizzarlo correttamente nell'input datetime-local
-        const rawDate = data.date.substring(0, 16); 
+        const rawDate = data.date ? data.date.substring(0, 16) : ""; 
         
         const div = document.createElement('div');
         div.className = 'admin-event';
@@ -148,7 +159,32 @@ async function loadAdminEvents() {
     });
 }
 
-// FUNZIONI GLOBALI PER I PULSANTI GENERATI
+// CARICA RECENSIONI
+async function loadAdminReviews() {
+    const container = document.getElementById('reviews-container');
+    container.innerHTML = "Caricamento...";
+    const snap = await getDocs(query(collection(db, "recensioni"), orderBy("timestamp", "desc")));
+    
+    if(snap.empty) { container.innerHTML = "<p style='color:#888; font-size:14px;'>Nessuna recensione trovata.</p>"; return; }
+    
+    container.innerHTML = "";
+    snap.forEach(docSnap => {
+        const data = docSnap.data();
+        const reviewId = docSnap.id;
+        const stars = "⭐".repeat(data.stelle || 5);
+        
+        const div = document.createElement('div');
+        div.className = 'admin-rev';
+        div.innerHTML = `
+            <div class="admin-rev-head"><span>${data.nome}</span><span>${stars}</span></div>
+            <div class="admin-rev-text">"${data.testo}"</div>
+            <button class="btn-del" style="width:100%; margin-top:0;" onclick="eliminaRecensione('${reviewId}')"><i class="fas fa-trash"></i> Elimina Recensione</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// FUNZIONI GLOBALI (ELIMINAZIONE E AGGIORNAMENTO)
 window.eliminaEvento = async function(id) {
     if(confirm("Sei sicuro di voler eliminare questa locandina?")) {
         await deleteDoc(doc(db, "eventi", id));
@@ -162,6 +198,13 @@ window.aggiornaData = async function(id) {
     await updateDoc(doc(db, "eventi", id), { date: nuovaData + ":00" });
     alert("Data aggiornata con successo!");
     loadAdminEvents();
+};
+
+window.eliminaRecensione = async function(id) {
+    if(confirm("Vuoi davvero cancellare questa recensione?")) {
+        await deleteDoc(doc(db, "recensioni", id));
+        loadAdminReviews();
+    }
 };
 </script>
 </body>

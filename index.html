@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DJ PILU — Pierluigi Berardi</title>
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -137,11 +138,14 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .scc .cbi{background:rgba(255,85,0,.1);color:var(--sc)}
 .lt .cbi{background:rgba(67,230,96,.1);color:#43E660}
 
-/* FOOTER */
+/* FOOTER & ADMIN BTN */
 footer{padding:60px 22px 120px;border-top:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;gap:12px}
 .fl{font-family:'Bebas Neue',sans-serif;font-size:20vw;letter-spacing:4vw;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.06);line-height:1}
-.fc{font-size:3vw;color:rgba(255,255,255,.2);text-align:center;line-height:1.9;letter-spacing:.5px}
+.fc{font-size:3vw;color:rgba(255,255,255,.2);text-align:center;line-height:1.9;letter-spacing:.5px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap;}
 .fd{color:var(--gold);margin:0 6px}
+.admin-btn{color:rgba(255,255,255,.1); font-size: 14px; margin-left: 8px; text-decoration: none; transition: color 0.3s;}
+.admin-btn:hover{color:var(--gold);}
+
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
     </style>
 </head>
@@ -164,7 +168,7 @@ footer{padding:60px 22px 120px;border-top:1px solid var(--bd);display:flex;flex-
     </div>
     <div class="hr">
         <div class="hp"><i class="fas fa-eye"></i><span id="view-counter">—</span></div>
-        <div class="hp" id="like-btn" onclick="toggleLike()"><i class="fas fa-heart"></i><span id="like-text">Mi Piace</span></div>
+        <div class="hp" id="like-btn"><i class="fas fa-heart"></i><span id="like-text">Mi Piace</span></div>
     </div>
 </div>
 
@@ -185,7 +189,7 @@ footer{padding:60px 22px 120px;border-top:1px solid var(--bd);display:flex;flex-
 <canvas id="sc"></canvas>
 
 <div id="lb">
-    <button id="lbc" onclick="closeLB()"><i class="fas fa-times"></i></button>
+    <button id="lbc"><i class="fas fa-times"></i></button>
     <img id="lbi" src="" alt="">
     <video id="lbv" controls playsinline></video>
 </div>
@@ -244,113 +248,198 @@ footer{padding:60px 22px 120px;border-top:1px solid var(--bd);display:flex;flex-
 
 <footer>
     <div class="fl">PILU</div>
-    <p class="fc">© 2026 Pierluigi Berardi <span class="fd">◈</span> DJ Pilu<br>Afro House vibes from San Marino 🇸🇲</p>
+    <p class="fc">
+        © 2026 Pierluigi Berardi <span class="fd">◈</span> DJ Pilu <br> Afro House vibes from San Marino 🇸🇲
+        <a href="admin.html" class="admin-btn" title="Area Riservata"><i class="fas fa-lock"></i></a>
+    </p>
 </footer>
 
-<script>
-const eventsData=[{img:"Locandina.jpg",date:"2026-02-20T20:00:00"},{img:"Locandina1.jpg",date:"2026-02-21T20:00:00"}];
-const galleryItems=[{type:"video",src:"video2.mov"},{type:"video",src:"video3.mov"}];
-for(let i=1;i<=26;i++)galleryItems.push({type:"image",src:`foto${i}.jpg`});
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const splash=document.getElementById('splash'),audio=document.getElementById('bg-audio'),hv=document.getElementById('hv'),ppb=document.getElementById('ppb'),viz=document.getElementById('viz');
+// Le tue chiavi Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyDPAwh58NCFJ3CoTLvG8KcVXC5oQPIzXiI",
+    authDomain: "sito-pilu.firebaseapp.com",
+    projectId: "sito-pilu",
+    storageBucket: "sito-pilu.firebasestorage.app",
+    messagingSenderId: "423213362317",
+    appId: "1:423213362317:web:809d1124411a6f3023c6c4",
+    measurementId: "G-VXNEV82BP3"
+};
 
-document.getElementById('sb').addEventListener('click',()=>{
-    splash.classList.add('hide');
-    audio.volume=.75;
-    audio.play().then(()=>viz.classList.add('on')).catch(()=>{});
-    hv.play().catch(()=>{});
-    initViews();
-});
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-ppb.addEventListener('click',()=>{
-    if(audio.paused){audio.play();ppb.innerHTML='<i class="fas fa-pause"></i>';viz.classList.add('on');}
-    else{audio.pause();ppb.innerHTML='<i class="fas fa-play"></i>';viz.classList.remove('on');}
-});
+// Funzione principale che scarica i dati da Firestore
+async function caricaContenuti() {
+    try {
+        // Carica Eventi
+        const snapEv = await getDocs(query(collection(db, "eventi"), orderBy("date", "asc")));
+        const eventi = snapEv.docs.map(doc => doc.data());
+        buildEvents(eventi);
 
-function initViews(){
-    let v=parseInt(localStorage.getItem('pilu_views')||'0');
-    if(v<1000)v=Math.floor(Math.random()*1500+1000);
-    v++;localStorage.setItem('pilu_views',v);
-    document.getElementById('view-counter').textContent=v.toLocaleString('it-IT');
-    if(localStorage.getItem('pilu_liked')==='true'){document.getElementById('like-btn').classList.add('liked');document.getElementById('like-text').textContent='Ti Piace';}
+        // Carica Gallery
+        const snapGal = await getDocs(query(collection(db, "gallery"), orderBy("ordine", "asc")));
+        const galleryItems = snapGal.docs.map(doc => doc.data());
+        buildGallery(galleryItems);
+
+    } catch (e) {
+        console.error("Errore connessione Firebase:", e);
+    }
 }
-function toggleLike(){
-    const b=document.getElementById('like-btn'),l=document.getElementById('like-text'),on=b.classList.toggle('liked');
-    l.textContent=on?'Ti Piace':'Mi Piace';localStorage.setItem('pilu_liked',on);
-}
 
-function buildEvents(){
-    const w=document.getElementById('ew'),now=Date.now();
-    const up=eventsData.filter(e=>new Date(e.date)>now).sort((a,b)=>new Date(a.date)-new Date(b.date));
-    const dn=eventsData.filter(e=>new Date(e.date)<=now).sort((a,b)=>new Date(b.date)-new Date(a.date));
-    function card(ev,c){
-        const el=document.createElement('div');
-        el.className='ec'+(c?' concluded':'');
-        el.innerHTML=`<img src="${ev.img}" class="ef" alt="Evento DJ Pilu" loading="lazy"><div class="efoot"><div class="cd" data-date="${ev.date}"></div></div>`;
+// Genera HTML per Eventi
+function buildEvents(data) {
+    const w = document.getElementById('ew');
+    w.innerHTML = ""; 
+    const now = Date.now();
+    const up = data.filter(e => new Date(e.date) > now);
+    const dn = data.filter(e => new Date(e.date) <= now);
+
+    function card(ev, c) {
+        const el = document.createElement('div');
+        el.className = 'ec' + (c ? ' concluded' : '');
+        el.innerHTML = `<img src="${ev.img}" class="ef" alt="Evento DJ Pilu" loading="lazy"><div class="efoot"><div class="cd" data-date="${ev.date}"></div></div>`;
         return el;
     }
-    up.forEach(e=>w.appendChild(card(e,false)));
-    if(dn.length){const d=document.createElement('div');d.className='ediv';d.innerHTML='<span>eventi conclusi</span>';w.appendChild(d);dn.forEach(e=>w.appendChild(card(e,true)));}
+    
+    up.forEach(e => w.appendChild(card(e, false)));
+    if(dn.length) {
+        const d = document.createElement('div'); 
+        d.className = 'ediv'; 
+        d.innerHTML = '<span>eventi conclusi</span>';
+        w.appendChild(d);
+        dn.forEach(e => w.appendChild(card(e, true)));
+    }
+    tick(); // Fa partire il countdown
 }
-buildEvents();
 
-function tick(){
-    const now=Date.now();
-    document.querySelectorAll('.cd').forEach(el=>{
-        const diff=new Date(el.dataset.date)-now;
-        if(diff<=0){el.innerHTML=`<span class="conc">Concluso</span>`;return;}
-        const d=Math.floor(diff/864e5),h=Math.floor(diff%864e5/36e5),m=Math.floor(diff%36e5/6e4),s=Math.floor(diff%6e4/1e3);
-        el.innerHTML=`<div class="tb"><span class="tv">${d}</span><span class="tl">GG</span></div><div class="tb"><span class="tv">${h}</span><span class="tl">H</span></div><div class="tb"><span class="tv">${m}</span><span class="tl">M</span></div><div class="tb"><span class="tv">${s}</span><span class="tl">S</span></div>`;
-    });
-}
-setInterval(tick,1000);tick();
+// Genera HTML per Galleria
+function buildGallery(items) {
+    const grid = document.getElementById('gallery-grid');
+    grid.innerHTML = ""; 
+    items.forEach(item => {
+        const wrap = document.createElement('div');
+        const isV = item.type === 'video';
+        wrap.className = 'gi' + (isV ? ' isv wide' : '');
+        
+        const ph = document.createElement('div');
+        ph.className = 'gph';
+        ph.innerHTML = `<i class="fas ${isV ? 'fa-film' : 'fa-image'}"></i>`;
+        wrap.appendChild(ph);
 
-function buildGallery(){
-    const grid=document.getElementById('gallery-grid');
-    galleryItems.forEach(item=>{
-        const wrap=document.createElement('div');
-        const isV=item.type==='video';
-        wrap.className='gi'+(isV?' isv wide':'');
-        const ph=document.createElement('div');ph.className='gph';
-        ph.innerHTML=`<i class="fas ${isV?'fa-film':'fa-image'}"></i>`;wrap.appendChild(ph);
-        if(isV){
-            const vid=document.createElement('video');
-            vid.muted=true;vid.loop=true;vid.playsInline=true;vid.preload='metadata';
-            vid.setAttribute('playsinline','');vid.setAttribute('muted','');
-            vid.style.cssText+='transform:translateZ(0);will-change:transform;';
-            // Both source types for .mov support across browsers
-            const isMov=item.src.toLowerCase().endsWith('.mov');
-            ['video/mp4','video/quicktime'].forEach(t=>{
-                const s=document.createElement('source');s.src=item.src;s.type=t;vid.appendChild(s);
+        if(isV) {
+            const vid = document.createElement('video');
+            vid.muted = true; vid.loop = true; vid.playsInline = true; vid.preload = 'metadata';
+            vid.setAttribute('playsinline', ''); vid.setAttribute('muted', '');
+            
+            const isMov = item.src.toLowerCase().endsWith('.mov');
+            ['video/mp4', 'video/quicktime'].forEach(t => {
+                const s = document.createElement('source'); s.src = item.src; s.type = t; vid.appendChild(s);
             });
-            vid.addEventListener('error',()=>{ph.classList.add('show');vid.style.display='none';});
+            
+            vid.addEventListener('error', () => { ph.classList.add('show'); vid.style.display = 'none'; });
             wrap.appendChild(vid);
-            const pi=document.createElement('div');pi.className='pi';wrap.appendChild(pi);
-            new IntersectionObserver(entries=>entries.forEach(e=>e.isIntersecting?vid.play().catch(()=>{}):vid.pause()),{threshold:.25}).observe(wrap);
-            wrap.addEventListener('click',()=>openVid(item.src,isMov));
+            
+            const pi = document.createElement('div'); pi.className = 'pi'; wrap.appendChild(pi);
+            
+            new IntersectionObserver(entries => entries.forEach(e => e.isIntersecting ? vid.play().catch(()=>{}) : vid.pause()), {threshold: .25}).observe(wrap);
+            wrap.addEventListener('click', () => openVid(item.src, isMov));
         } else {
-            const img=document.createElement('img');img.src=item.src;img.alt='DJ Pilu';img.loading='lazy';
-            img.addEventListener('error',()=>{ph.classList.add('show');img.style.display='none';});
-            wrap.appendChild(img);wrap.addEventListener('click',()=>openImg(item.src));
+            const img = document.createElement('img'); img.src = item.src; img.alt = 'DJ Pilu'; img.loading = 'lazy';
+            img.addEventListener('error', () => { ph.classList.add('show'); img.style.display = 'none'; });
+            wrap.appendChild(img);
+            wrap.addEventListener('click', () => openImg(item.src));
         }
         grid.appendChild(wrap);
     });
 }
-buildGallery();
 
-const lb=document.getElementById('lb'),lbi=document.getElementById('lbi'),lbv=document.getElementById('lbv');
-function openImg(src){lbi.src=src;lbi.style.display='block';lbv.style.display='none';lbv.pause();lb.classList.add('show');}
-function openVid(src,isMov){lbv.innerHTML='';['video/mp4','video/quicktime'].forEach(t=>{const s=document.createElement('source');s.src=src;s.type=t;lbv.appendChild(s);});lbv.load();lbv.style.display='block';lbi.style.display='none';lb.classList.add('show');lbv.play().catch(()=>{});}
-function closeLB(){lb.classList.remove('show');lbv.pause();lbv.innerHTML='';lbi.src='';}
-lb.addEventListener('click',e=>{if(e.target===lb)closeLB();});
+// UI LOGIC
+const splash = document.getElementById('splash'), audio = document.getElementById('bg-audio'), hv = document.getElementById('hv'), ppb = document.getElementById('ppb'), viz = document.getElementById('viz');
 
-new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on');}),{threshold:.06}).observe(document.body);
-document.querySelectorAll('.reveal').forEach(el=>new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on');}),{threshold:.06}).observe(el));
+// Avvio Sito
+document.getElementById('sb').addEventListener('click', () => {
+    splash.classList.add('hide');
+    audio.volume = .75;
+    audio.play().then(() => viz.classList.add('on')).catch(() => {});
+    hv.play().catch(() => {});
+    initViews();
+    caricaContenuti(); // Carica i dati appena si entra
+});
 
-const canvas=document.getElementById('sc'),ctx=canvas.getContext('2d');
-const rsz=()=>{canvas.width=innerWidth;canvas.height=innerHeight;};window.addEventListener('resize',rsz);rsz();
-const pts=Array.from({length:28},()=>({x:Math.random()*canvas.width,y:canvas.height+Math.random()*180,r:Math.random()*80+35,vx:Math.random()*.3-.15,vy:-(Math.random()*.6+.2),op:Math.random()*.045+.01}));
-(function smoke(){ctx.clearRect(0,0,canvas.width,canvas.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.y<-p.r*2){p.y=canvas.height+p.r;p.x=Math.random()*canvas.width;}if(p.x<-p.r)p.x=canvas.width+p.r;if(p.x>canvas.width+p.r)p.x=-p.r;const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);g.addColorStop(0,`rgba(210,185,140,${p.op})`);g.addColorStop(1,'rgba(0,0,0,0)');ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();});requestAnimationFrame(smoke);})();
+// Audio Player
+ppb.addEventListener('click', () => {
+    if(audio.paused) { audio.play(); ppb.innerHTML = '<i class="fas fa-pause"></i>'; viz.classList.add('on'); }
+    else { audio.pause(); ppb.innerHTML = '<i class="fas fa-play"></i>'; viz.classList.remove('on'); }
+});
+
+// Views & Likes
+function initViews() {
+    let v = parseInt(localStorage.getItem('pilu_views') || '0');
+    if(v < 1000) v = Math.floor(Math.random() * 1500 + 1000);
+    v++; localStorage.setItem('pilu_views', v);
+    document.getElementById('view-counter').textContent = v.toLocaleString('it-IT');
+    if(localStorage.getItem('pilu_liked') === 'true') {
+        document.getElementById('like-btn').classList.add('liked');
+        document.getElementById('like-text').textContent = 'Ti Piace';
+    }
+}
+
+document.getElementById('like-btn').addEventListener('click', function() {
+    const on = this.classList.toggle('liked');
+    document.getElementById('like-text').textContent = on ? 'Ti Piace' : 'Mi Piace';
+    localStorage.setItem('pilu_liked', on);
+});
+
+// Countdown Eventi
+function tick() {
+    const now = Date.now();
+    document.querySelectorAll('.cd').forEach(el => {
+        const diff = new Date(el.dataset.date) - now;
+        if(diff <= 0) { el.innerHTML = `<span class="conc">Concluso</span>`; return; }
+        const d = Math.floor(diff / 864e5), h = Math.floor(diff % 864e5 / 36e5), m = Math.floor(diff % 36e5 / 6e4), s = Math.floor(diff % 6e4 / 1e3);
+        el.innerHTML = `<div class="tb"><span class="tv">${d}</span><span class="tl">GG</span></div><div class="tb"><span class="tv">${h}</span><span class="tl">H</span></div><div class="tb"><span class="tv">${m}</span><span class="tl">M</span></div><div class="tb"><span class="tv">${s}</span><span class="tl">S</span></div>`;
+    });
+}
+setInterval(tick, 1000);
+
+// Lightbox
+const lb = document.getElementById('lb'), lbi = document.getElementById('lbi'), lbv = document.getElementById('lbv');
+function openImg(src) { lbi.src = src; lbi.style.display = 'block'; lbv.style.display = 'none'; lbv.pause(); lb.classList.add('show'); }
+function openVid(src, isMov) { 
+    lbv.innerHTML = ''; 
+    ['video/mp4', 'video/quicktime'].forEach(t => { const s = document.createElement('source'); s.src = src; s.type = t; lbv.appendChild(s); });
+    lbv.load(); lbv.style.display = 'block'; lbi.style.display = 'none'; lb.classList.add('show'); lbv.play().catch(()=>{}); 
+}
+function closeLB() { lb.classList.remove('show'); lbv.pause(); lbv.innerHTML = ''; lbi.src = ''; }
+document.getElementById('lbc').addEventListener('click', closeLB);
+lb.addEventListener('click', e => { if(e.target === lb) closeLB(); });
+
+// Animation Reveal
+new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); }), {threshold: .06}).observe(document.body);
+document.querySelectorAll('.reveal').forEach(el => new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('on'); }), {threshold: .06}).observe(el));
+
+// Effetto Fumo
+const canvas = document.getElementById('sc'), ctx = canvas.getContext('2d');
+const rsz = () => { canvas.width = innerWidth; canvas.height = innerHeight; };
+window.addEventListener('resize', rsz); rsz();
+const pts = Array.from({length: 28}, () => ({x: Math.random() * canvas.width, y: canvas.height + Math.random() * 180, r: Math.random() * 80 + 35, vx: Math.random() * .3 - .15, vy: -(Math.random() * .6 + .2), op: Math.random() * .045 + .01}));
+(function smoke() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pts.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if(p.y < -p.r * 2) { p.y = canvas.height + p.r; p.x = Math.random() * canvas.width; }
+        if(p.x < -p.r) p.x = canvas.width + p.r;
+        if(p.x > canvas.width + p.r) p.x = -p.r;
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+        g.addColorStop(0, `rgba(210,185,140,${p.op})`); g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = g; ctx.fill();
+    });
+    requestAnimationFrame(smoke);
+})();
 </script>
 </body>
 </html>

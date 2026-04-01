@@ -6,23 +6,33 @@
     <title>Pilu Admin Area</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Space Grotesk', sans-serif; background: #060606; color: #F0EDE8; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px;}
-        .box { background: #141414; padding: 30px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        h1 { color: #C9A84C; margin-top: 0; letter-spacing: 2px; text-transform: uppercase; }
+        body { font-family: 'Space Grotesk', sans-serif; background: #060606; color: #F0EDE8; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px;}
+        .box { background: #141414; padding: 30px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 450px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); margin-bottom: 20px; }
+        h1 { color: #C9A84C; margin-top: 0; letter-spacing: 2px; text-transform: uppercase; font-size: 24px; }
+        h2 { color: #fff; font-size: 18px; margin-top: 30px; border-bottom: 1px solid #333; padding-bottom: 10px;}
         input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #0E0E0E; color: #fff; font-family: inherit; font-size: 16px; box-sizing: border-box; }
         input[type="file"] { padding: 10px; background: #1a1a1a; cursor: pointer; color: #C9A84C; }
-        button { background: #C9A84C; color: #000; font-weight: bold; cursor: pointer; border: none; text-transform: uppercase; letter-spacing: 1px; transition: transform 0.1s; margin-top: 20px; }
+        button { background: #C9A84C; color: #000; font-weight: bold; cursor: pointer; border: none; text-transform: uppercase; letter-spacing: 1px; transition: transform 0.1s; }
         button:active { transform: scale(0.96); }
         .hidden { display: none !important; }
         #status { margin-top: 15px; font-size: 15px; font-weight: bold; min-height: 20px; }
-        .back-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #888; margin-top: 30px; }
+        .back-btn { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #888; margin-top: 10px; }
+        
+        /* Stile lista eventi da gestire */
+        .admin-event { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 15px; margin-bottom: 15px; text-align: left; }
+        .admin-event img { max-width: 80px; border-radius: 4px; float: left; margin-right: 15px; }
+        .admin-event .details { overflow: hidden; }
+        .admin-event input[type="datetime-local"] { padding: 8px; font-size: 14px; margin: 5px 0; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-edit { background: #43E660; padding: 8px; font-size: 12px; }
+        .btn-del { background: #FF3B30; color: #fff; padding: 8px; font-size: 12px; }
     </style>
 </head>
 <body>
 
     <div id="login-box" class="box">
         <h1>Area Riservata</h1>
-        <p style="font-size: 14px; color: #888; margin-bottom: 20px;">Accesso riservato alla gestione eventi</p>
+        <p style="font-size: 14px; color: #888;">Accesso riservato alla gestione eventi</p>
         <input type="password" id="pass" placeholder="Password...">
         <button id="btn-login">Entra</button>
         <button class="back-btn" onclick="window.location.href='index.html'">Torna al Sito</button>
@@ -30,25 +40,23 @@
 
     <div id="admin-box" class="box hidden">
         <h1>Nuovo Evento</h1>
-        <p style="font-size: 14px; color: #888; margin-bottom: 20px;">Aggiungi locandina e data dal telefono</p>
-        
-        <label style="display:block; text-align:left; font-size:14px; color:#C9A84C; font-weight:bold;">1. Seleziona Immagine</label>
         <input type="file" id="file-img" accept="image/*">
-        
-        <label style="display:block; text-align:left; margin-top:15px; font-size:14px; color:#C9A84C; font-weight:bold;">2. Data e Ora Serata</label>
         <input type="datetime-local" id="data-evento">
-        
         <button id="btn-upload">Pubblica Evento</button>
         <div id="status"></div>
+
+        <div id="lista-eventi">
+            <h2>Gestione Eventi Caricati</h2>
+            <div id="events-container">Sto caricando gli eventi...</div>
+        </div>
         
-        <button class="back-btn" onclick="window.location.href='index.html'">Esci e torna al Sito</button>
+        <button class="back-btn" onclick="window.location.href='index.html'">Esci</button>
     </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// --- CHIAVI FIREBASE ---
 const firebaseConfig = {
     apiKey: "AIzaSyDPAwh58NCFJ3CoTLvG8KcVXC5oQPIzXiI",
     authDomain: "sito-pilu.firebaseapp.com",
@@ -61,81 +69,100 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// --- CHIAVE IMGBB (INSERISCI QUI LA TUA) ---
-const IMGBB_API_KEY = "e4660bfc2d38c3617e2bafc8230f3e37";
+// INCOLLA QUI LA CHIAVE IMGBB
+const IMGBB_API_KEY = "INCOLLA_QUI_LA_CHIAVE_IMGBB";
 
-// LOGICA LOGIN
+// LOGIN
 document.getElementById('btn-login').addEventListener('click', () => {
-    const pass = document.getElementById('pass').value;
-    if (pass === "118rsm") {
+    if (document.getElementById('pass').value === "118rsm") {
         document.getElementById('login-box').classList.add('hidden');
         document.getElementById('admin-box').classList.remove('hidden');
+        loadAdminEvents(); // Carica la lista degli eventi appena loggato
     } else {
         alert("Password errata!");
         document.getElementById('pass').value = '';
     }
 });
 
-// LOGICA UPLOAD IMMAGINE E DATI
+// UPLOAD NUOVO EVENTO
 document.getElementById('btn-upload').addEventListener('click', async () => {
     const fileInput = document.getElementById('file-img');
     const dataRaw = document.getElementById('data-evento').value;
     const status = document.getElementById('status');
-    const btn = document.getElementById('btn-upload');
 
-    if (!fileInput.files[0] || !dataRaw) {
-        alert("Attenzione: devi inserire sia l'immagine che la data!");
-        return;
-    }
-
-    if (IMGBB_API_KEY === "INCOLLA_QUI_LA_CHIAVE_IMGBB") {
-        alert("Errore: Non hai inserito la chiave API di ImgBB nel codice!");
-        return;
-    }
+    if (!fileInput.files[0] || !dataRaw) return alert("Inserisci immagine e data!");
 
     status.style.color = "#C9A84C";
-    status.innerText = "Caricamento in corso... attendi.";
-    btn.disabled = true;
+    status.innerText = "Caricamento...";
+    document.getElementById('btn-upload').disabled = true;
 
     try {
-        // 1. Invia immagine a ImgBB
         const formData = new FormData();
         formData.append("image", fileInput.files[0]);
-        
-        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-            method: "POST",
-            body: formData
-        });
-        
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
         const imgData = await response.json();
         if (!imgData.success) throw new Error("Caricamento ImgBB fallito");
         
-        const imgUrl = imgData.data.display_url; // Ottiene il link dell'immagine
-
-        // 2. Prepara la data per il countdown (aggiunge i secondi)
-        const dataFormattata = dataRaw + ":00"; 
-        
-        // 3. Salva link e data su Firebase Firestore
-        await addDoc(collection(db, "eventi"), {
-            img: imgUrl,
-            date: dataFormattata
-        });
+        await addDoc(collection(db, "eventi"), { img: imgData.data.display_url, date: dataRaw + ":00" });
 
         status.style.color = "#43E660";
-        status.innerText = "Evento pubblicato online! ✅";
-        
-        // Svuota i campi per il prossimo caricamento
-        fileInput.value = "";
-        document.getElementById('data-evento').value = "";
-        
-    } catch (error) {
-        console.error(error);
-        status.style.color = "#FF3B30";
-        status.innerText = "Errore durante il caricamento.";
+        status.innerText = "Pubblicato! ✅";
+        fileInput.value = ""; document.getElementById('data-evento').value = "";
+        loadAdminEvents(); // Ricarica la lista per mostrare il nuovo evento
+    } catch (e) {
+        status.style.color = "#FF3B30"; status.innerText = "Errore.";
     } finally {
-        btn.disabled = false;
+        document.getElementById('btn-upload').disabled = false;
     }
 });
+
+// CARICA EVENTI PER MODIFICA/ELIMINAZIONE
+async function loadAdminEvents() {
+    const container = document.getElementById('events-container');
+    container.innerHTML = "Caricamento...";
+    const snap = await getDocs(query(collection(db, "eventi"), orderBy("date", "desc")));
+    
+    if(snap.empty) { container.innerHTML = "<p>Nessun evento caricato.</p>"; return; }
+    
+    container.innerHTML = "";
+    snap.forEach(docSnap => {
+        const data = docSnap.data();
+        const eventId = docSnap.id;
+        // Rimuove i secondi per visualizzarlo correttamente nell'input datetime-local
+        const rawDate = data.date.substring(0, 16); 
+        
+        const div = document.createElement('div');
+        div.className = 'admin-event';
+        div.innerHTML = `
+            <img src="${data.img}" alt="locandina">
+            <div class="details">
+                <input type="datetime-local" id="date-${eventId}" value="${rawDate}">
+                <div class="btn-group">
+                    <button class="btn-edit" onclick="aggiornaData('${eventId}')">Aggiorna Data</button>
+                    <button class="btn-del" onclick="eliminaEvento('${eventId}')">Elimina</button>
+                </div>
+            </div>
+            <div style="clear:both;"></div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// FUNZIONI GLOBALI PER I PULSANTI GENERATI
+window.eliminaEvento = async function(id) {
+    if(confirm("Sei sicuro di voler eliminare questa locandina?")) {
+        await deleteDoc(doc(db, "eventi", id));
+        loadAdminEvents();
+    }
+};
+
+window.aggiornaData = async function(id) {
+    const nuovaData = document.getElementById(`date-${id}`).value;
+    if(!nuovaData) return alert("Scegli una data valida");
+    await updateDoc(doc(db, "eventi", id), { date: nuovaData + ":00" });
+    alert("Data aggiornata con successo!");
+    loadAdminEvents();
+};
 </script>
 </body>
 </html>
